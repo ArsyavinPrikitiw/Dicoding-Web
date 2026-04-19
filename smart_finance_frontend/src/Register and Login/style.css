@@ -258,19 +258,35 @@
 .field-icon-wrap input:focus {
   border-color: #5a8a6a;
   box-shadow: 0 0 0 3px rgba(90, 138, 106, 0.1);
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .toggle-pass {
   position: absolute;
   right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
   padding: 4px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
 }
 
+.toggle-pass img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.auth-field input {
+  width: 100%;
+  padding-right: 44px;
+}
 .forgot-pw {
   text-align: right;
   font-size: 12px;

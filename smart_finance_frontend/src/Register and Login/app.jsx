@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
+import hideIcon from '../assets/hide.png';
+import viewIcon from '../assets/view.png';
 import './style.css';
 
 export default function App() {
@@ -232,7 +234,11 @@ export default function App() {
                     className="toggle-pass"
                     onClick={() => setShowPass(!showPass)}
                   >
-                    {showPass ? '🙈' : '👁'}
+                    {showPass ? (
+                      <img src={hideIcon} alt="Sembunyikan" />
+                    ) : (
+                      <img src={viewIcon} alt="Tampilkan" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -337,7 +343,11 @@ export default function App() {
                     className="toggle-pass"
                     onClick={() => setShowPass(!showPass)}
                   >
-                    {showPass ? '🙈' : '👁'}
+                    {showPass ? (
+                      <img src={hideIcon} alt="Sembunyikan" />
+                    ) : (
+                      <img src={viewIcon} alt="Tampilkan" />
+                    )}
                   </button>
                 </div>
               </div>
