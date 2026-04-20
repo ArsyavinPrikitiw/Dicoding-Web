@@ -4,11 +4,11 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-
-const AppContext = createContext(null);
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const Ctx = createContext(null);
 
 export function AppProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -18,265 +18,246 @@ export function AppProvider({ children }) {
       return null;
     }
   });
-  const [dashboard, setDashboard] = useState(null);
   const [healthHistory, setHealthHistory] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [consultants, setConsultants] = useState([]);
-  const [lastHealthCheck, setLastHealthCheck] = useState(null);
-  const [loading, setLoading] = useState({
-    dashboard: false,
-    health: false,
-    bookings: false,
-    consultants: false,
-  });
+  const [dashboard, setDashboard] = useState(null);
+  const [busy, setBusy] = useState({ init: false, hc: false, bk: false });
+  const ready = useRef(false);
 
-  const token = () => localStorage.getItem('token');
-
-  const authHeader = () => ({
-    Authorization: `Bearer ${token()}`,
+  const tok = () => localStorage.getItem('token');
+  const hdr = () => ({
+    Authorization: `Bearer ${tok()}`,
     'Content-Type': 'application/json',
   });
 
-  const fetchDashboard = useCallback(async () => {
-    if (!token()) return;
-    setLoading((p) => ({ ...p, dashboard: true }));
+  const loadHealth = useCallback(async () => {
+    if (!tok()) return;
     try {
-      const res = await fetch(`${API_URL}/dashboard`, {
-        headers: authHeader(),
+      const r = await fetch(`${API}/health-check/history?limit=50`, {
+        headers: hdr(),
       });
-      const data = await res.json();
-      if (data.status === 'success') setDashboard(data.data);
-    } catch (e) {
-      console.error('Dashboard fetch error:', e);
-    } finally {
-      setLoading((p) => ({ ...p, dashboard: false }));
-    }
+      const d = await r.json();
+      if (d.status === 'success') setHealthHistory(d.data.history || []);
+    } catch {}
   }, []);
 
-  const fetchHealthHistory = useCallback(async () => {
-    if (!token()) return;
-    setLoading((p) => ({ ...p, health: true }));
+  const loadBookings = useCallback(async () => {
+    if (!tok()) return;
     try {
-      const res = await fetch(`${API_URL}/health-check/history?limit=20`, {
-        headers: authHeader(),
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-        setHealthHistory(data.data.history);
-        if (data.data.history.length > 0)
-          setLastHealthCheck(data.data.history[0]);
+      const r = await fetch(`${API}/bookings`, { headers: hdr() });
+      const d = await r.json();
+      if (d.status === 'success') setBookings(d.data.bookings || []);
+    } catch {}
+  }, []);
+
+  const loadConsultants = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/consultants`);
+      const d = await r.json();
+      if (d.status === 'success') setConsultants(d.data.consultants || []);
+    } catch {}
+  }, []);
+
+  const loadDashboard = useCallback(async () => {
+    if (!tok()) return;
+    try {
+      const r = await fetch(`${API}/dashboard`, { headers: hdr() });
+      const d = await r.json();
+      if (d.status === 'success') setDashboard(d.data);
+    } catch {}
+  }, []);
+
+  const loadMe = useCallback(async () => {
+    if (!tok()) return;
+    try {
+      const r = await fetch(`${API}/auth/me`, { headers: hdr() });
+      const d = await r.json();
+      if (d.status === 'success') {
+        setUser(d.data.user);
+        localStorage.setItem('user', JSON.stringify(d.data.user));
       }
-    } catch (e) {
-      console.error('Health history error:', e);
-    } finally {
-      setLoading((p) => ({ ...p, health: false }));
-    }
-  }, []);
-
-  const fetchBookings = useCallback(async () => {
-    if (!token()) return;
-    setLoading((p) => ({ ...p, bookings: true }));
-    try {
-      const res = await fetch(`${API_URL}/bookings`, { headers: authHeader() });
-      const data = await res.json();
-      if (data.status === 'success') setBookings(data.data.bookings);
-    } catch (e) {
-      console.error('Bookings fetch error:', e);
-    } finally {
-      setLoading((p) => ({ ...p, bookings: false }));
-    }
-  }, []);
-
-  const fetchConsultants = useCallback(async () => {
-    setLoading((p) => ({ ...p, consultants: true }));
-    try {
-      const res = await fetch(`${API_URL}/consultants`);
-      const data = await res.json();
-      if (data.status === 'success') setConsultants(data.data.consultants);
-    } catch (e) {
-      console.error('Consultants fetch error:', e);
-    } finally {
-      setLoading((p) => ({ ...p, consultants: false }));
-    }
-  }, []);
-
-  const fetchMe = useCallback(async () => {
-    if (!token()) return;
-    try {
-      const res = await fetch(`${API_URL}/auth/me`, { headers: authHeader() });
-      const data = await res.json();
-      if (data.status === 'success') {
-        setUser(data.data.user);
-        localStorage.setItem('user', JSON.stringify(data.data.user));
-      }
-    } catch (e) {
-      console.error('Me fetch error:', e);
-    }
+    } catch {}
   }, []);
 
   const refreshAll = useCallback(async () => {
-    await Promise.all([
-      fetchDashboard(),
-      fetchHealthHistory(),
-      fetchBookings(),
-      fetchConsultants(),
-      fetchMe(),
+    await Promise.allSettled([
+      loadHealth(),
+      loadBookings(),
+      loadConsultants(),
+      loadDashboard(),
+      loadMe(),
     ]);
-  }, [
-    fetchDashboard,
-    fetchHealthHistory,
-    fetchBookings,
-    fetchConsultants,
-    fetchMe,
-  ]);
+  }, [loadHealth, loadBookings, loadConsultants, loadDashboard, loadMe]);
 
-  const submitHealthCheck = useCallback(
-    async (form) => {
-      const res = await fetch(`${API_URL}/health-check`, {
-        method: 'POST',
-        headers: authHeader(),
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-        setLastHealthCheck(data.data.result);
-        await Promise.all([fetchHealthHistory(), fetchDashboard()]);
-      }
-      return data;
-    },
-    [fetchHealthHistory, fetchDashboard],
-  );
-
-  const submitBooking = useCallback(
-    async (bookingData) => {
-      const res = await fetch(`${API_URL}/bookings`, {
-        method: 'POST',
-        headers: authHeader(),
-        body: JSON.stringify(bookingData),
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-        await Promise.all([fetchBookings(), fetchDashboard()]);
-      }
-      return data;
-    },
-    [fetchBookings, fetchDashboard],
-  );
-
-  const cancelBooking = useCallback(
-    async (id) => {
-      const res = await fetch(`${API_URL}/bookings/${id}/cancel`, {
-        method: 'PATCH',
-        headers: authHeader(),
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-        await Promise.all([fetchBookings(), fetchDashboard()]);
-      }
-      return data;
-    },
-    [fetchBookings, fetchDashboard],
-  );
-
-  const updateProfile = useCallback(async (form) => {
-    const res = await fetch(`${API_URL}/auth/profile`, {
-      method: 'PATCH',
-      headers: authHeader(),
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (data.status === 'success') {
-      setUser(data.data.user);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+  useEffect(() => {
+    if (tok() && !ready.current) {
+      ready.current = true;
+      setBusy((p) => ({ ...p, init: true }));
+      refreshAll().finally(() => setBusy((p) => ({ ...p, init: false })));
     }
-    return data;
-  }, []);
-
-  const changePassword = useCallback(async (form) => {
-    const res = await fetch(`${API_URL}/auth/change-password`, {
-      method: 'PATCH',
-      headers: authHeader(),
-      body: JSON.stringify(form),
-    });
-    return res.json();
+    loadConsultants();
   }, []);
 
   const login = useCallback(
     async (email, password) => {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const r = await fetch(`${API}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (data.status === 'success') {
-        const tk = data.data?.token || data.token;
-        const usr = data.data?.user || data.user;
+      const d = await r.json();
+      if (d.status === 'success') {
+        const tk = d.data?.token || d.token;
+        const usr = d.data?.user || d.user;
         localStorage.setItem('token', tk);
         localStorage.setItem('user', JSON.stringify(usr));
         setUser(usr);
+        ready.current = true;
         await refreshAll();
       }
-      return data;
+      return d;
     },
     [refreshAll],
   );
 
   const register = useCallback(async (form) => {
-    const res = await fetch(`${API_URL}/auth/register`, {
+    const r = await fetch(`${API}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
-    return res.json();
+    return r.json();
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    setDashboard(null);
     setHealthHistory([]);
     setBookings([]);
-    setLastHealthCheck(null);
+    setDashboard(null);
+    ready.current = false;
   }, []);
 
-  useEffect(() => {
-    if (token()) {
-      refreshAll();
+  const doHealthCheck = useCallback(
+    async (form) => {
+      setBusy((p) => ({ ...p, hc: true }));
+      try {
+        const r = await fetch(`${API}/health-check`, {
+          method: 'POST',
+          headers: hdr(),
+          body: JSON.stringify(form),
+        });
+        const d = await r.json();
+        if (d.status === 'success') {
+          await Promise.allSettled([loadHealth(), loadDashboard()]);
+        }
+        return d;
+      } finally {
+        setBusy((p) => ({ ...p, hc: false }));
+      }
+    },
+    [loadHealth, loadDashboard],
+  );
+
+  const doBooking = useCallback(
+    async (form) => {
+      setBusy((p) => ({ ...p, bk: true }));
+      try {
+        const r = await fetch(`${API}/bookings`, {
+          method: 'POST',
+          headers: hdr(),
+          body: JSON.stringify(form),
+        });
+        const d = await r.json();
+        if (d.status === 'success') {
+          await Promise.allSettled([loadBookings(), loadDashboard()]);
+        }
+        return d;
+      } finally {
+        setBusy((p) => ({ ...p, bk: false }));
+      }
+    },
+    [loadBookings, loadDashboard],
+  );
+
+  const cancelBooking = useCallback(
+    async (id) => {
+      const r = await fetch(`${API}/bookings/${id}/cancel`, {
+        method: 'PATCH',
+        headers: hdr(),
+      });
+      const d = await r.json();
+      if (d.status === 'success')
+        await Promise.allSettled([loadBookings(), loadDashboard()]);
+      return d;
+    },
+    [loadBookings, loadDashboard],
+  );
+
+  const updateProfile = useCallback(async (form) => {
+    const r = await fetch(`${API}/auth/profile`, {
+      method: 'PATCH',
+      headers: hdr(),
+      body: JSON.stringify(form),
+    });
+    const d = await r.json();
+    if (d.status === 'success') {
+      setUser(d.data.user);
+      localStorage.setItem('user', JSON.stringify(d.data.user));
     }
+    return d;
   }, []);
 
-  const value = {
-    user,
-    dashboard,
-    healthHistory,
-    bookings,
-    consultants,
-    lastHealthCheck,
-    loading,
-    login,
-    register,
-    logout,
-    fetchDashboard,
-    fetchHealthHistory,
-    fetchBookings,
-    fetchConsultants,
-    fetchMe,
-    refreshAll,
-    submitHealthCheck,
-    submitBooking,
-    cancelBooking,
-    updateProfile,
-    changePassword,
-    API_URL,
-  };
+  const changePass = useCallback(async (form) => {
+    const r = await fetch(`${API}/auth/change-password`, {
+      method: 'PATCH',
+      headers: hdr(),
+      body: JSON.stringify(form),
+    });
+    return r.json();
+  }, []);
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  const getSlots = useCallback(async (consultantId, date) => {
+    const r = await fetch(
+      `${API}/consultants/${consultantId}/available-slots?date=${date}`,
+    );
+    return r.json();
+  }, []);
+
+  const lastHC = healthHistory[0] || null;
+
+  return (
+    <Ctx.Provider
+      value={{
+        user,
+        healthHistory,
+        bookings,
+        consultants,
+        dashboard,
+        busy,
+        lastHC,
+        login,
+        register,
+        logout,
+        doHealthCheck,
+        doBooking,
+        cancelBooking,
+        updateProfile,
+        changePass,
+        getSlots,
+        refreshAll,
+        API,
+      }}
+    >
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export const useApp = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used inside AppProvider');
-  return ctx;
+  const c = useContext(Ctx);
+  if (!c) throw new Error('useApp outside AppProvider');
+  return c;
 };

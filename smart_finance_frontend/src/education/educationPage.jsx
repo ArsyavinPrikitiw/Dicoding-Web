@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar.jsx';
-import Topbar from '../components/Topbar.jsx';
-import './educationPage.css';
+import Layout from '../components/Layout.jsx';
 
 const ARTICLES = [
   {
     id: 1,
-    category: 'Manajemen Utang',
-    readTime: 5,
+    cat: 'Manajemen Utang',
+    mins: 5,
     icon: '🔓',
-    color: '#fde8e8',
-    textColor: '#c94040',
+    bg: '#fef2f2',
+    tc: '#b91c1c',
     title: 'Cara Keluar dari Jerat Pinjol Ilegal',
-    desc: 'Pinjaman online ilegal sering menjerat generasi muda dengan bunga yang mencekik. Kenali ciri-cirinya dan pelajari langkah strategis untuk keluar dari jeratannya sebelum terlambat.',
+    desc: 'Pinjaman online ilegal sering menjerat generasi muda dengan bunga yang mencekik. Kenali ciri-cirinya dan pelajari langkah keluar dari jeratannya.',
     content: [
-      'Pinjaman online (pinjol) ilegal adalah salah satu ancaman finansial terbesar bagi generasi muda Indonesia. Dengan kemudahan akses dan proses yang cepat, banyak orang terjebak tanpa menyadari konsekuensi jangka panjangnya.',
-      'Ciri-ciri pinjol ilegal meliputi: tidak terdaftar di OJK, bunga harian yang sangat tinggi (bisa mencapai 1-4% per hari), ancaman dan intimidasi saat penagihan, serta akses ke seluruh kontak di ponsel peminjam.',
-      'Langkah keluar dari jerat pinjol: (1) Hentikan meminjam dari aplikasi baru, (2) Konsolidasikan semua utang, (3) Hubungi OJK di 157 untuk bantuan, (4) Pertimbangkan restrukturisasi dengan bank resmi, (5) Konsultasikan dengan ahli keuangan.',
+      'Pinjaman online (pinjol) ilegal adalah ancaman finansial terbesar bagi generasi muda Indonesia. Dengan kemudahan akses dan proses yang cepat, banyak orang terjebak tanpa menyadari konsekuensi jangka panjangnya.',
+      'Ciri-ciri pinjol ilegal: tidak terdaftar di OJK, bunga harian yang sangat tinggi (1-4% per hari), ancaman dan intimidasi saat penagihan, serta akses ke seluruh kontak di ponsel peminjam.',
+      'Langkah keluar: (1) Hentikan meminjam dari aplikasi baru, (2) Konsolidasikan semua utang, (3) Hubungi OJK di 157 untuk bantuan, (4) Pertimbangkan restrukturisasi dengan bank resmi, (5) Konsultasikan dengan ahli keuangan.',
       'Ingat: tidak ada jalan pintas dari masalah keuangan. Disiplin dan rencana yang matang adalah kunci untuk bebas dari utang.',
     ],
     tips: [
@@ -28,40 +26,39 @@ const ARTICLES = [
   },
   {
     id: 2,
-    category: 'Budgeting',
-    readTime: 4,
+    cat: 'Budgeting',
+    mins: 4,
     icon: '📊',
-    color: '#dbeafe',
-    textColor: '#1e40af',
+    bg: '#eff6ff',
+    tc: '#1d4ed8',
     title: 'Metode 50/30/20 untuk Pemula',
-    desc: 'Atur keuangan dengan cara paling mudah dan terbukti efektif: 50% untuk kebutuhan, 30% untuk keinginan, dan 20% untuk tabungan dan investasi.',
+    desc: 'Atur keuangan dengan cara paling mudah dan terbukti efektif: 50% kebutuhan, 30% keinginan, dan 20% tabungan dan investasi.',
     content: [
-      'Metode 50/30/20 adalah salah satu strategi penganggaran paling populer yang dipopulerkan oleh Senator Elizabeth Warren dalam bukunya "All Your Worth: The Ultimate Lifetime Money Plan".',
+      'Metode 50/30/20 adalah strategi penganggaran populer yang dipopulerkan oleh Senator Elizabeth Warren. Sederhana namun sangat efektif untuk semua level penghasilan.',
       '50% Kebutuhan: Alokasikan setengah pendapatan bersih untuk biaya hidup esensial seperti sewa/KPR, makanan, transportasi, tagihan utilitas, dan asuransi kesehatan.',
       '30% Keinginan: Gunakan 30% untuk hal-hal yang membuat hidup lebih menyenangkan — makan di restoran, hiburan, langganan streaming, hobi, dan belanja non-esensial.',
       '20% Tabungan & Utang: Sisihkan 20% untuk dana darurat, investasi, dan pelunasan utang lebih cepat. Prioritaskan dana darurat 3-6 bulan pengeluaran terlebih dahulu.',
     ],
     tips: [
       'Hitung pendapatan bersih setelah pajak sebelum membagi',
-      'Otomatiskan transfer ke rekening tabungan setiap gajian',
-      'Review alokasi setiap 3 bulan dan sesuaikan dengan kondisi',
+      'Otomatiskan transfer ke rekening tabungan di hari gajian',
+      'Review alokasi setiap 3 bulan',
     ],
   },
   {
     id: 3,
-    category: 'Investasi',
-    readTime: 6,
+    cat: 'Investasi',
+    mins: 6,
     icon: '📈',
-    color: '#dcfce7',
-    textColor: '#166534',
+    bg: '#f0fdf4',
+    tc: '#166534',
     title: 'Mulai Investasi dengan Modal Rp 100.000',
-    desc: 'Modal kecil bukan halangan untuk mulai berinvestasi. Pelajari instrumen investasi yang cocok untuk pemula dengan dana terbatas dan potensi pertumbuhan optimal.',
+    desc: 'Modal kecil bukan halangan untuk mulai berinvestasi. Pelajari instrumen investasi yang cocok untuk pemula dengan dana terbatas.',
     content: [
       'Banyak orang menunda investasi karena merasa belum punya cukup modal. Padahal, dengan Rp 100.000 saja Anda sudah bisa mulai membangun portofolio investasi yang solid.',
-      'Reksa Dana Pasar Uang: Cocok untuk pemula, likuiditas tinggi, risiko rendah. Beberapa platform seperti Bibit, Bareksa, dan Ajaib memungkinkan investasi mulai Rp 10.000.',
-      'Reksa Dana Indeks: Diversifikasi otomatis mengikuti indeks pasar seperti IDX30 atau LQ45. Return historis lebih konsisten dibanding reksa dana aktif dengan biaya lebih rendah.',
-      'Saham Partial: Platform seperti Stockbit memungkinkan pembelian saham mulai dari 1 lot (100 lembar). Mulai dengan saham blue chip yang stabil dan berkapitalisasi besar.',
-      'Prinsip DCA (Dollar Cost Averaging): Investasikan jumlah tetap secara rutin tanpa mempedulikan kondisi pasar. Strategi ini terbukti efektif mengurangi risiko timing pasar.',
+      'Reksa Dana Pasar Uang: Cocok untuk pemula, likuiditas tinggi, risiko rendah. Platform seperti Bibit, Bareksa, dan Ajaib memungkinkan investasi mulai Rp 10.000.',
+      'Reksa Dana Indeks: Diversifikasi otomatis mengikuti indeks pasar seperti IDX30 atau LQ45. Return historis lebih konsisten dengan biaya lebih rendah dibanding reksa dana aktif.',
+      'Prinsip DCA (Dollar Cost Averaging): Investasikan jumlah tetap secara rutin tanpa mempedulikan kondisi pasar. Strategi ini terbukti efektif mengurangi risiko timing pasar dalam jangka panjang.',
     ],
     tips: [
       'Diversifikasi ke minimal 3 instrumen berbeda',
@@ -71,70 +68,70 @@ const ARTICLES = [
   },
   {
     id: 4,
-    category: 'Dana Darurat',
-    readTime: 4,
+    cat: 'Dana Darurat',
+    mins: 4,
     icon: '🛡️',
-    color: '#fef3c7',
-    textColor: '#92400e',
+    bg: '#fffbeb',
+    tc: '#854d0e',
     title: 'Pentingnya Dana Darurat untuk Gen Z',
-    desc: 'Dana darurat adalah fondasi keuangan yang sering diabaikan. Ketahui berapa jumlah ideal yang perlu disiapkan dan strategi membangunnya dari nol.',
+    desc: 'Dana darurat adalah fondasi keuangan yang sering diabaikan. Ketahui berapa jumlah ideal dan strategi membangunnya dari nol.',
     content: [
       'Dana darurat adalah sejumlah uang yang disimpan khusus untuk menghadapi situasi tak terduga: kehilangan pekerjaan, biaya medis mendadak, perbaikan kendaraan, atau keperluan mendesak lainnya.',
       'Berapa jumlah ideal? Para ahli keuangan merekomendasikan 3-6 bulan pengeluaran untuk karyawan, dan 6-12 bulan untuk freelancer atau wirausaha yang memiliki penghasilan tidak tetap.',
-      'Contoh: Jika pengeluaran bulanan Anda Rp 3.000.000, maka dana darurat minimal yang harus dimiliki adalah Rp 9.000.000 - Rp 18.000.000.',
-      'Strategi membangun dana darurat: Mulai dari Rp 500.000/bulan, pisahkan ke rekening berbeda, pilih instrumen likuid seperti tabungan atau reksa dana pasar uang.',
+      'Contoh: Jika pengeluaran bulanan Anda Rp 3.000.000, maka dana darurat minimal adalah Rp 9.000.000 - Rp 18.000.000.',
+      'Strategi membangun dana darurat: Mulai dari Rp 500.000/bulan, pisahkan ke rekening berbeda, pilih instrumen likuid seperti tabungan atau reksa dana pasar uang, jangan gunakan untuk keperluan lain.',
     ],
     tips: [
-      'Simpan di rekening terpisah yang tidak memiliki kartu ATM',
+      'Simpan di rekening terpisah yang tidak ada kartu ATM-nya',
       'Jangan gunakan untuk investasi — likuiditas adalah prioritas',
       'Isi kembali segera setelah menggunakannya',
     ],
   },
   {
     id: 5,
-    category: 'DTI Ratio',
-    readTime: 3,
+    cat: 'DTI Ratio',
+    mins: 3,
     icon: '💡',
-    color: '#f3e8ff',
-    textColor: '#7c3aed',
+    bg: '#fdf4ff',
+    tc: '#7e22ce',
     title: 'Memahami Debt-to-Income Ratio (DTI)',
     desc: 'DTI adalah indikator paling penting dalam menilai kesehatan keuangan. Pelajari cara menghitung, menginterpretasi, dan memperbaiki rasio DTI Anda.',
     content: [
-      'Debt-to-Income Ratio (DTI) adalah persentase penghasilan bulanan yang digunakan untuk membayar cicilan utang. Ini adalah salah satu metrik utama yang digunakan bank dan lembaga keuangan untuk menilai kelayakan kredit.',
+      'Debt-to-Income Ratio (DTI) adalah persentase penghasilan bulanan yang digunakan untuk membayar cicilan utang. Metrik utama yang digunakan bank dan lembaga keuangan untuk menilai kelayakan kredit.',
       'Cara Menghitung: DTI = (Total Cicilan Bulanan ÷ Pendapatan Bruto Bulanan) × 100%. Contoh: cicilan Rp 1.500.000 dari pendapatan Rp 5.000.000 = DTI 30%.',
-      'Interpretasi DTI: < 30% = Sehat (ideal untuk mengajukan kredit), 30-50% = Rawan (perlu perhatian), > 50% = Kritis (prioritas restrukturisasi).',
-      'Cara memperbaiki DTI: (1) Lunasi utang dengan bunga tertinggi terlebih dahulu (Avalanche Method), (2) Konsolidasikan utang ke bunga lebih rendah, (3) Tingkatkan penghasilan melalui side hustle, (4) Hindari utang baru.',
+      'Interpretasi: < 30% = Sehat (ideal untuk mengajukan kredit baru), 30-50% = Rawan (perlu perhatian serius), > 50% = Kritis (prioritas restrukturisasi utang segera).',
+      'Cara memperbaiki DTI: (1) Lunasi utang bunga tertinggi terlebih dahulu (Avalanche Method), (2) Konsolidasikan utang ke bunga lebih rendah, (3) Tingkatkan penghasilan melalui side hustle, (4) Hindari utang baru.',
     ],
     tips: [
       'Hitung DTI Anda setiap bulan untuk memantau perkembangan',
-      'Target DTI < 20% untuk kondisi finansial yang optimal',
+      'Target DTI < 20% untuk kondisi finansial optimal',
       'Konsultasikan dengan perencana keuangan jika DTI > 40%',
     ],
   },
   {
     id: 6,
-    category: 'Tabungan',
-    readTime: 5,
+    cat: 'Tabungan',
+    mins: 5,
     icon: '🏦',
-    color: '#e8f5ee',
-    textColor: '#1a7a4a',
-    title: 'Strategi Menabung di Era Inflasi Tinggi',
-    desc: 'Inflasi menggerus nilai uang yang tersimpan di bawah kasur. Temukan instrumen dan strategi menabung yang mampu mengalahkan laju inflasi untuk menjaga daya beli Anda.',
+    bg: '#f0fdf4',
+    tc: '#166534',
+    title: 'Strategi Menabung di Era Inflasi',
+    desc: 'Inflasi menggerus nilai uang yang tersimpan. Temukan instrumen dan strategi menabung yang mampu mengalahkan laju inflasi.',
     content: [
       'Inflasi adalah musuh tabungan. Ketika inflasi 5% per tahun sementara bunga tabungan hanya 1-2%, nilai riil uang Anda berkurang setiap tahun meskipun nominalnya bertambah.',
-      'Instrumen yang bisa mengalahkan inflasi: (1) Deposito dengan bunga 4-6%, (2) Obligasi Negara Ritel (ORI) dengan kupon tetap, (3) Reksa dana campuran atau pendapatan tetap, (4) Properti untuk investasi jangka panjang.',
+      'Instrumen yang bisa mengalahkan inflasi: (1) Deposito dengan bunga 4-6%, (2) Obligasi Negara Ritel (ORI) dengan kupon tetap, (3) Reksa dana campuran atau pendapatan tetap, (4) Properti untuk jangka panjang.',
       'Strategi Laddering Deposito: Bagi tabungan ke beberapa deposito dengan tenor berbeda (1, 3, 6, 12 bulan) untuk menjaga likuiditas sekaligus mendapat bunga lebih tinggi.',
-      'Prioritas alokasi tabungan: Dana darurat → Pelunasan utang bunga tinggi → Investasi jangka panjang → Tujuan finansial spesifik (DP rumah, pendidikan, dll).',
+      'Prioritas alokasi: Dana darurat → Pelunasan utang bunga tinggi → Investasi jangka panjang → Tujuan finansial spesifik (DP rumah, pendidikan, dll).',
     ],
     tips: [
       'Otomatisasi tabungan di hari gajian sebelum membelanjakan',
       'Pisahkan rekening tabungan dari rekening operasional',
-      'Review dan bandingkan bunga antar bank secara rutin',
+      'Bandingkan bunga antar bank secara rutin',
     ],
   },
 ];
 
-const CATEGORIES = [
+const CATS = [
   'Semua',
   'Manajemen Utang',
   'Budgeting',
@@ -144,306 +141,488 @@ const CATEGORIES = [
   'Tabungan',
 ];
 
-export default function EducationPage() {
+export default function Education() {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState('Semua');
+  const [cat, setCat] = useState('Semua');
   const [search, setSearch] = useState('');
-  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [article, setArticle] = useState(null);
 
   const filtered = ARTICLES.filter((a) => {
-    const matchCat =
-      activeCategory === 'Semua' || a.category === activeCategory;
+    const matchCat = cat === 'Semua' || a.cat === cat;
     const matchSearch =
       a.title.toLowerCase().includes(search.toLowerCase()) ||
       a.desc.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
 
-  if (selectedArticle)
+  if (article)
     return (
-      <div className="layout">
-        <Sidebar />
-        <div className="main-content">
-          <Topbar
-            title="Edukasi Finansial"
-            subtitle={selectedArticle.category}
-          />
-          <div className="page-body">
-            <button
-              className="btn btn-ghost"
-              style={{ marginBottom: 20 }}
-              onClick={() => setSelectedArticle(null)}
-            >
-              ← Kembali ke Daftar Artikel
-            </button>
+      <Layout title="Edukasi Finansial" subtitle={article.cat}>
+        <button
+          className="btn btn-outline btn-sm"
+          style={{ marginBottom: 18 }}
+          onClick={() => setArticle(null)}
+        >
+          ← Kembali
+        </button>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 300px',
+            gap: 20,
+            alignItems: 'start',
+          }}
+        >
+          <div className="card">
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 320px',
-                gap: 24,
-                alignItems: 'start',
+                background: `linear-gradient(135deg, ${article.bg}, #fff)`,
+                padding: '28px 28px 22px',
+                borderBottom: '1px solid var(--border)',
+                display: 'flex',
+                gap: 20,
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
               }}
             >
-              <div className="panel">
-                <div
-                  className="edu-article-hero"
+              <span style={{ fontSize: 48, flexShrink: 0 }}>
+                {article.icon}
+              </span>
+              <div>
+                <span
+                  className="badge"
                   style={{
-                    background: `linear-gradient(135deg, ${selectedArticle.color}, white)`,
+                    background: article.bg,
+                    color: article.tc,
+                    marginBottom: 8,
+                    display: 'inline-block',
                   }}
                 >
-                  <span className="edu-article-hero-icon">
-                    {selectedArticle.icon}
-                  </span>
-                  <div>
-                    <span
-                      className="edu-cat-chip"
-                      style={{
-                        background: selectedArticle.color,
-                        color: selectedArticle.textColor,
-                      }}
-                    >
-                      {selectedArticle.category}
-                    </span>
-                    <h1 className="edu-article-title">
-                      {selectedArticle.title}
-                    </h1>
-                    <span style={{ fontSize: 13, color: 'var(--sage)' }}>
-                      ⏱ {selectedArticle.readTime} menit baca
-                    </span>
-                  </div>
-                </div>
-                <div className="panel-body edu-article-body">
-                  {selectedArticle.content.map((p, i) => (
-                    <p key={i} className="edu-paragraph">
-                      {p}
-                    </p>
-                  ))}
-                  <div className="edu-tips-box">
-                    <div className="edu-tips-title">💡 Tips Praktis</div>
-                    {selectedArticle.tips.map((t, i) => (
-                      <div key={i} className="edu-tip-item">
-                        <span className="edu-tip-dot" />
-                        <span>{t}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="edu-cta-box">
-                    <div className="edu-cta-text">
-                      <strong>Butuh panduan lebih personal?</strong>
-                      <p>
-                        Konsultasikan kondisi keuanganmu dengan ahli keuangan
-                        berpengalaman kami
-                      </p>
-                    </div>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => navigate('/consultation')}
-                    >
-                      Konsultasi Sekarang
-                    </button>
-                  </div>
-                </div>
+                  {article.cat}
+                </span>
+                <h1
+                  style={{
+                    fontFamily: 'var(--fd)',
+                    fontSize: 22,
+                    fontWeight: 600,
+                    color: 'var(--ink)',
+                    lineHeight: 1.3,
+                    marginBottom: 6,
+                    letterSpacing: '-.3px',
+                  }}
+                >
+                  {article.title}
+                </h1>
+                <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                  ⏱ {article.mins} menit baca
+                </span>
               </div>
-
+            </div>
+            <div className="card-body" style={{ maxWidth: 700 }}>
+              {article.content.map((p, i) => (
+                <p
+                  key={i}
+                  style={{
+                    fontSize: 14,
+                    color: 'var(--ink-2)',
+                    lineHeight: 1.8,
+                    marginBottom: 16,
+                  }}
+                >
+                  {p}
+                </p>
+              ))}
               <div
-                style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+                style={{
+                  background: 'var(--green-mist)',
+                  borderLeft: '4px solid var(--green-3)',
+                  borderRadius: 10,
+                  padding: '16px 20px',
+                  margin: '20px 0',
+                }}
               >
-                <div className="panel">
-                  <div className="panel-header">
-                    <span className="panel-title">Artikel Terkait</span>
-                  </div>
-                  <div style={{ padding: '8px 0' }}>
-                    {ARTICLES.filter(
-                      (a) =>
-                        a.id !== selectedArticle.id &&
-                        a.category === selectedArticle.category,
-                    )
-                      .concat(
-                        ARTICLES.filter(
-                          (a) =>
-                            a.id !== selectedArticle.id &&
-                            a.category !== selectedArticle.category,
-                        ),
-                      )
-                      .slice(0, 3)
-                      .map((a) => (
-                        <div
-                          key={a.id}
-                          className="edu-related-item"
-                          onClick={() => setSelectedArticle(a)}
-                        >
-                          <div
-                            className="edu-related-icon"
-                            style={{ background: a.color }}
-                          >
-                            {a.icon}
-                          </div>
-                          <div>
-                            <div className="edu-related-title">{a.title}</div>
-                            <div className="edu-related-meta">
-                              {a.category} · {a.readTime} menit
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 13,
+                    color: 'var(--ink)',
+                    marginBottom: 10,
+                  }}
+                >
+                  💡 Tips Praktis
                 </div>
-
-                <div className="panel">
+                {article.tips.map((t, i) => (
                   <div
-                    className="panel-body"
+                    key={i}
                     style={{
-                      background:
-                        'linear-gradient(135deg, var(--ink), var(--ink-2))',
-                      borderRadius: 'var(--radius)',
-                      color: 'white',
-                      textAlign: 'center',
-                      padding: 24,
+                      display: 'flex',
+                      gap: 10,
+                      marginBottom: 8,
+                      fontSize: 13,
+                      color: 'var(--ink-2)',
+                      lineHeight: 1.55,
                     }}
                   >
-                    <div style={{ fontSize: 36, marginBottom: 12 }}>🎯</div>
                     <div
                       style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: 17,
-                        fontWeight: 600,
-                        marginBottom: 8,
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        background: 'var(--green-3)',
+                        flexShrink: 0,
+                        marginTop: 6,
                       }}
-                    >
-                      Cek Kondisi Keuanganmu
-                    </div>
-                    <p
-                      style={{
-                        fontSize: 13,
-                        opacity: 0.7,
-                        marginBottom: 16,
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      Gunakan Financial Health Check gratis untuk mengetahui
-                      status keuanganmu
-                    </p>
-                    <button
-                      className="btn"
-                      style={{
-                        background: 'white',
-                        color: 'var(--ink)',
-                        width: '100%',
-                      }}
-                      onClick={() => navigate('/financial-health')}
-                    >
-                      Mulai Health Check
-                    </button>
+                    />
+                    <span>{t}</span>
                   </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  background: 'var(--ink)',
+                  borderRadius: 12,
+                  padding: '22px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 16,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color: '#fff',
+                      marginBottom: 4,
+                    }}
+                  >
+                    Butuh panduan lebih personal?
+                  </div>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: 'rgba(255,255,255,.6)',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Konsultasikan kondisi keuanganmu dengan ahli berpengalaman
+                  </p>
                 </div>
+                <button
+                  className="btn"
+                  style={{
+                    background: '#fff',
+                    color: 'var(--ink)',
+                    flexShrink: 0,
+                  }}
+                  onClick={() => navigate('/consultation')}
+                >
+                  Konsultasi Sekarang
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="card">
+              <div className="card-head">
+                <span className="card-title">Artikel Terkait</span>
+              </div>
+              {ARTICLES.filter((a) => a.id !== article.id)
+                .slice(0, 4)
+                .map((a) => (
+                  <div
+                    key={a.id}
+                    style={{
+                      display: 'flex',
+                      gap: 11,
+                      alignItems: 'center',
+                      padding: '11px 18px',
+                      borderBottom: '1px solid var(--border)',
+                      cursor: 'pointer',
+                      transition: 'background .15s',
+                    }}
+                    onClick={() => setArticle(a)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = 'var(--green-mist)')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = '')
+                    }
+                  >
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        background: a.bg,
+                        borderRadius: 9,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 18,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {a.icon}
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: 'var(--ink)',
+                          lineHeight: 1.3,
+                          marginBottom: 2,
+                        }}
+                      >
+                        {a.title}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+                        {a.cat} · {a.mins} menit
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+            <div
+              className="card"
+              style={{
+                background: 'linear-gradient(135deg,var(--ink),var(--ink-2))',
+                border: 'none',
+              }}
+            >
+              <div className="card-body" style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 32, marginBottom: 10 }}>🎯</div>
+                <div
+                  style={{
+                    fontFamily: 'var(--fd)',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: '#fff',
+                    marginBottom: 7,
+                  }}
+                >
+                  Cek Kondisi Keuanganmu
+                </div>
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: 'rgba(255,255,255,.55)',
+                    marginBottom: 14,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Gunakan Financial Health Check gratis untuk mengetahui status
+                  keuanganmu
+                </p>
+                <button
+                  className="btn btn-full"
+                  style={{ background: '#fff', color: 'var(--ink)' }}
+                  onClick={() => navigate('/financial-health')}
+                >
+                  Mulai Health Check
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     );
 
   return (
-    <div className="layout">
-      <Sidebar />
-      <div className="main-content">
-        <Topbar
-          title="Edukasi Finansial"
-          subtitle="Tingkatkan literasi keuanganmu dengan artikel pilihan"
-        />
-        <div className="page-body">
-          <div className="edu-toolbar">
-            <div className="edu-search-wrap">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="edu-search-icon"
-                width="16"
-                height="16"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Cari artikel..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="edu-search-input"
-              />
-            </div>
-            <span
-              style={{
-                fontSize: 13,
-                color: 'var(--sage)',
-                white_space: 'nowrap',
+    <Layout
+      title="Edukasi Finansial"
+      subtitle="Tingkatkan literasi keuanganmu dengan artikel pilihan"
+    >
+      <div
+        style={{
+          display: 'flex',
+          gap: 10,
+          marginBottom: 16,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            minWidth: 200,
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <svg
+            style={{
+              position: 'absolute',
+              left: 12,
+              color: 'var(--muted)',
+              pointerEvents: 'none',
+            }}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            width="15"
+            height="15"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Cari artikel..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '9px 13px 9px 36px',
+              border: '1.5px solid var(--border)',
+              borderRadius: 9,
+              fontSize: 13,
+              outline: 'none',
+              fontFamily: 'var(--fb)',
+              color: 'var(--ink)',
+            }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--green-3)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
+          />
+        </div>
+        <span
+          style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}
+        >
+          {filtered.length} artikel
+        </span>
+      </div>
+
+      <div
+        style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 20 }}
+      >
+        {CATS.map((c) => (
+          <button
+            key={c}
+            onClick={() => setCat(c)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 20,
+              border: '1.5px solid',
+              borderColor: cat === c ? 'var(--ink)' : 'var(--border)',
+              background: cat === c ? 'var(--ink)' : '#fff',
+              color: cat === c ? '#fff' : 'var(--muted)',
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--fb)',
+              transition: 'all .15s',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="empty">
+          <div className="ei">📚</div>
+          <h3>Tidak Ditemukan</h3>
+          <p>Coba kata kunci atau kategori lain</p>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+            gap: 16,
+          }}
+        >
+          {filtered.map((a) => (
+            <div
+              key={a.id}
+              className="card"
+              style={{ cursor: 'pointer', transition: 'all .18s' }}
+              onClick={() => setArticle(a)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.boxShadow = 'var(--sh-md)';
+                e.currentTarget.style.borderColor = 'var(--green-bg)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = '';
+                e.currentTarget.style.borderColor = 'var(--border)';
               }}
             >
-              {filtered.length} artikel
-            </span>
-          </div>
-
-          <div className="edu-cats-row">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                className={`edu-cat-btn ${activeCategory === c ? 'active' : ''}`}
-                onClick={() => setActiveCategory(c)}
+              <div
+                style={{
+                  background: `linear-gradient(135deg, ${a.bg}, #fff)`,
+                  padding: '22px 20px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                }}
               >
-                {c}
-              </button>
-            ))}
-          </div>
-
-          {filtered.length === 0 ? (
-            <div className="empty-box">
-              <div className="empty-icon">📚</div>
-              <h3>Artikel Tidak Ditemukan</h3>
-              <p>Coba kata kunci atau kategori lain</p>
-            </div>
-          ) : (
-            <div className="edu-grid">
-              {filtered.map((a) => (
-                <div
-                  key={a.id}
-                  className="edu-card"
-                  onClick={() => setSelectedArticle(a)}
+                <span style={{ fontSize: 34 }}>{a.icon}</span>
+                <span
+                  className="badge"
+                  style={{ background: 'rgba(255,255,255,.75)', color: a.tc }}
                 >
-                  <div
-                    className="edu-card-top"
+                  {a.cat}
+                </span>
+              </div>
+              <div style={{ padding: '16px 18px' }}>
+                <h3
+                  style={{
+                    fontFamily: 'var(--fd)',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: 'var(--ink)',
+                    marginBottom: 7,
+                    lineHeight: 1.35,
+                    letterSpacing: '-.2px',
+                  }}
+                >
+                  {a.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: 'var(--ink-3)',
+                    lineHeight: 1.6,
+                    marginBottom: 14,
+                  }}
+                >
+                  {a.desc}
+                </p>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    paddingTop: 12,
+                    borderTop: '1px solid var(--border)',
+                  }}
+                >
+                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                    ⏱ {a.mins} menit baca
+                  </span>
+                  <span
                     style={{
-                      background: `linear-gradient(135deg, ${a.color}, white)`,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: 'var(--ink-2)',
                     }}
                   >
-                    <span className="edu-card-icon">{a.icon}</span>
-                    <span
-                      className="edu-cat-chip"
-                      style={{
-                        background: 'rgba(255,255,255,0.8)',
-                        color: a.textColor,
-                      }}
-                    >
-                      {a.category}
-                    </span>
-                  </div>
-                  <div className="edu-card-body">
-                    <h3 className="edu-card-title">{a.title}</h3>
-                    <p className="edu-card-desc">{a.desc}</p>
-                    <div className="edu-card-footer">
-                      <span className="edu-read-time">
-                        ⏱ {a.readTime} menit baca
-                      </span>
-                      <span className="edu-read-link">Baca →</span>
-                    </div>
-                  </div>
+                    Baca →
+                  </span>
                 </div>
-              ))}
+              </div>
             </div>
-          )}
+          ))}
         </div>
-      </div>
-    </div>
+      )}
+    </Layout>
   );
 }

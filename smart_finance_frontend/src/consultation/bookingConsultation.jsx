@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import Sidebar from '../components/Sidebar.jsx';
-import Topbar from '../components/Topbar.jsx';
+import Layout from '../components/Layout.jsx';
 import { useApp } from '../context/AppContext.jsx';
-import './bookingConsultation.css';
 
-const MONTHS = [
+const MN = [
   'Jan',
   'Feb',
   'Mar',
@@ -25,17 +23,16 @@ export default function BookingConsultation() {
   const { id } = useParams();
   const location = useLocation();
   const consultant = location.state?.consultant;
-  const { submitBooking, API_URL } = useApp();
+  const { doBooking, getSlots, busy } = useApp();
 
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [method, setMethod] = useState('video_meeting');
   const [topic, setTopic] = useState('');
   const [slots, setSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
 
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -44,364 +41,496 @@ export default function BookingConsultation() {
   });
 
   useEffect(() => {
-    if (!selectedDate) return;
+    if (!date) return;
     setSlotsLoading(true);
-    fetch(`${API_URL}/consultants/${id}/available-slots?date=${selectedDate}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.status === 'success') setSlots(data.data.slots);
+    setTime('');
+    getSlots(id, date)
+      .then((d) => {
+        if (d.status === 'success') setSlots(d.data.slots || []);
       })
-      .catch(console.error)
+      .catch(() => setSlots([]))
       .finally(() => setSlotsLoading(false));
-    setSelectedTime('');
-  }, [selectedDate]);
+  }, [date]);
 
-  const handleBooking = async () => {
-    if (!selectedDate || !selectedTime) {
-      setError('Pilih tanggal dan waktu terlebih dahulu.');
+  const submit = async () => {
+    if (!date || !time) {
+      setErr('Pilih tanggal dan waktu terlebih dahulu.');
       return;
     }
-    setLoading(true);
-    setError('');
+    setErr('');
     try {
-      const data = await submitBooking({
+      const d = await doBooking({
         consultant_id: parseInt(id),
-        booking_date: selectedDate,
-        booking_time: selectedTime,
+        booking_date: date,
+        booking_time: time,
         consultation_method: method,
         duration_minutes: 60,
         topic: topic || undefined,
       });
-      if (data.status === 'success') {
-        setSuccess(true);
-      } else {
-        setError(data.message);
-      }
+      if (d.status === 'success') setSuccess(true);
+      else setErr(d.message || 'Gagal booking.');
     } catch {
-      setError('Gagal terhubung ke server.');
-    } finally {
-      setLoading(false);
+      setErr('Gagal terhubung ke server.');
     }
   };
 
   if (success)
     return (
-      <div className="layout">
-        <Sidebar />
-        <div className="main-content">
-          <Topbar title="Booking Berhasil" />
-          <div className="page-body">
-            <div className="bk-success-wrapper">
-              <div className="bk-success-card">
-                <div className="bk-success-checkmark">✓</div>
-                <h2 className="bk-success-title">Booking Berhasil!</h2>
-                <p className="bk-success-msg">
-                  Konsultasi Anda telah dijadwalkan dengan{' '}
-                  <strong>{consultant?.name}</strong>
-                </p>
-                <div className="bk-success-details">
-                  {[
-                    ['📅 Tanggal', selectedDate],
-                    ['🕐 Waktu', `${selectedTime} WIB`],
-                    [
-                      method === 'video_meeting' ? '📹 Metode' : '💬 Metode',
-                      method === 'video_meeting' ? 'Video Meeting' : 'Chat',
-                    ],
-                    ['⏱ Durasi', '60 menit'],
-                  ].map(([k, v]) => (
-                    <div key={k} className="bk-detail-row">
-                      <span>{k}</span>
-                      <strong>{v}</strong>
-                    </div>
-                  ))}
-                </div>
-                <div className="bk-notice">
-                  <strong>Menunggu Konfirmasi</strong>
-                  <p>
-                    Konsultan akan segera menghubungi Anda. Dashboard dan jadwal
-                    konsultasi sudah diperbarui otomatis.
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-                  <button
-                    className="btn btn-ghost"
-                    style={{ flex: 1 }}
-                    onClick={() => navigate('/consultation')}
+      <Layout title="Booking Berhasil">
+        <div style={{ maxWidth: 500, margin: '0 auto' }}>
+          <div className="card">
+            <div
+              className="card-body"
+              style={{ textAlign: 'center', padding: '36px 28px' }}
+            >
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  background:
+                    'linear-gradient(135deg,var(--green-lt),var(--green-3))',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 28,
+                  color: '#fff',
+                  margin: '0 auto 16px',
+                  boxShadow: '0 8px 24px rgba(45,122,82,.25)',
+                }}
+              >
+                ✓
+              </div>
+              <h2
+                style={{
+                  fontFamily: 'var(--fd)',
+                  fontSize: 24,
+                  fontWeight: 600,
+                  color: 'var(--ink)',
+                  marginBottom: 7,
+                }}
+              >
+                Booking Berhasil!
+              </h2>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: 'var(--muted)',
+                  marginBottom: 24,
+                }}
+              >
+                Dijadwalkan dengan{' '}
+                <strong style={{ color: 'var(--ink)' }}>
+                  {consultant?.name}
+                </strong>
+              </p>
+              <div
+                style={{
+                  background: 'var(--paper)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 10,
+                  padding: 16,
+                  marginBottom: 18,
+                  textAlign: 'left',
+                }}
+              >
+                {[
+                  ['📅 Tanggal', date],
+                  ['🕐 Waktu', `${time} WIB`],
+                  [
+                    method === 'video_meeting' ? '📹 Metode' : '💬 Metode',
+                    method === 'video_meeting' ? 'Video Meeting' : 'Chat',
+                  ],
+                  ['⏱ Durasi', '60 menit'],
+                ].map(([k, v]) => (
+                  <div
+                    key={k}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      padding: '8px 0',
+                      borderBottom: '1px solid var(--border)',
+                      fontSize: 13,
+                    }}
                   >
-                    Lihat Jadwal
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    style={{ flex: 1 }}
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    Ke Dashboard
-                  </button>
-                </div>
+                    <span style={{ color: 'var(--muted)' }}>{k}</span>
+                    <strong style={{ color: 'var(--ink)' }}>{v}</strong>
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  background: 'var(--gold-lt)',
+                  border: '1px solid #fde68a',
+                  borderRadius: 9,
+                  padding: '12px 15px',
+                  textAlign: 'left',
+                  marginBottom: 22,
+                  fontSize: 13,
+                  color: '#854d0e',
+                }}
+              >
+                <strong style={{ display: 'block', marginBottom: 3 }}>
+                  ⏳ Menunggu Konfirmasi
+                </strong>
+                Konsultan akan segera menghubungi Anda. Dashboard dan jadwal
+                sudah diperbarui otomatis.
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  className="btn btn-outline"
+                  style={{ flex: 1 }}
+                  onClick={() => navigate('/consultation')}
+                >
+                  Lihat Jadwal
+                </button>
+                <button
+                  className="btn btn-dark"
+                  style={{ flex: 1 }}
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Ke Dashboard
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     );
 
   return (
-    <div className="layout">
-      <Sidebar />
-      <div className="main-content">
-        <Topbar
-          title="Booking Konsultasi"
-          subtitle={consultant ? `Booking dengan ${consultant.name}` : ''}
-        />
-        <div className="page-body">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 360px',
-              gap: 24,
-              alignItems: 'start',
-            }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {consultant && (
-                <div className="panel">
-                  <div
-                    className="panel-body"
-                    style={{ display: 'flex', gap: 20, alignItems: 'center' }}
-                  >
-                    <div className="bk-consultant-avatar">
-                      {consultant.photo_url ? (
-                        <img src={consultant.photo_url} alt="" />
-                      ) : (
-                        <span>{consultant.name.charAt(0)}</span>
-                      )}
-                    </div>
-                    <div>
-                      <div
-                        style={{
-                          fontFamily: 'var(--font-display)',
-                          fontSize: 20,
-                          fontWeight: 600,
-                          color: 'var(--ink)',
-                          marginBottom: 4,
-                        }}
-                      >
-                        {consultant.name}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 13,
-                          color: 'var(--sage)',
-                          marginBottom: 6,
-                        }}
-                      >
-                        {consultant.specialization}
-                      </div>
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: 12,
-                          alignItems: 'center',
-                        }}
-                      >
-                        <span style={{ fontSize: 13, color: '#e8a020' }}>
-                          {'★'.repeat(Math.round(consultant.rating))}{' '}
-                          {consultant.rating}
-                        </span>
-                        <span className="tag">
-                          {consultant.experience_years} tahun pengalaman
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 700,
-                            color: 'var(--ink)',
-                          }}
-                        >
-                          Rp {Number(consultant.rate).toLocaleString('id-ID')}
-                          /sesi
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="panel">
-                <div className="panel-header">
-                  <span className="panel-title">Pilih Tanggal</span>
-                </div>
-                <div className="panel-body">
-                  <div className="bk-dates-row">
-                    {dates.map((d, i) => {
-                      const str = d.toISOString().split('T')[0];
-                      return (
-                        <button
-                          key={i}
-                          className={`date-btn ${selectedDate === str ? 'active' : ''}`}
-                          onClick={() => setSelectedDate(str)}
-                        >
-                          <span className="dn">{d.getDate()}</span>
-                          <span className="dm">{MONTHS[d.getMonth()]}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {selectedDate && (
-                <div className="panel">
-                  <div className="panel-header">
-                    <span className="panel-title">Pilih Waktu</span>
-                  </div>
-                  <div className="panel-body">
-                    {slotsLoading ? (
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <div
-                            key={i}
-                            className="shimmer"
-                            style={{ width: 80, height: 42 }}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="bk-slots-row">
-                        {slots.map((s, i) => (
-                          <button
-                            key={i}
-                            disabled={!s.is_available}
-                            className={`time-btn ${selectedTime === s.time ? 'active' : ''}`}
-                            onClick={() => setSelectedTime(s.time)}
-                          >
-                            {s.time}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="panel">
-                <div className="panel-header">
-                  <span className="panel-title">Metode Konsultasi</span>
-                </div>
-                <div className="panel-body">
-                  <div style={{ display: 'flex', gap: 16 }}>
-                    {[
-                      ['chat', '💬', 'Chat'],
-                      ['video_meeting', '📹', 'Video Meeting'],
-                    ].map(([v, icon, l]) => (
-                      <label
-                        key={v}
-                        className={`method-option ${method === v ? 'active' : ''}`}
-                      >
-                        <input
-                          type="radio"
-                          name="method"
-                          value={v}
-                          checked={method === v}
-                          onChange={() => setMethod(v)}
-                        />
-                        <span className="method-icon">{icon}</span>
-                        <span className="method-label">{l}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="panel">
-                <div className="panel-header">
-                  <span className="panel-title">Topik Konsultasi</span>
-                </div>
-                <div className="panel-body">
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <textarea
-                      placeholder="Ceritakan topik yang ingin Anda diskusikan... (opsional)"
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      rows={4}
+    <Layout
+      title="Booking Konsultasi"
+      subtitle={consultant ? `Booking dengan ${consultant.name}` : ''}
+    >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 300px',
+          gap: 18,
+          alignItems: 'start',
+        }}
+        className="bk-layout"
+      >
+        <div className="col">
+          {consultant && (
+            <div className="card">
+              <div
+                className="card-body"
+                style={{
+                  display: 'flex',
+                  gap: 16,
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div
+                  style={{
+                    width: 62,
+                    height: 62,
+                    borderRadius: '50%',
+                    background:
+                      'linear-gradient(135deg,var(--green-lt),var(--green-3))',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 22,
+                    fontWeight: 800,
+                    color: 'var(--ink)',
+                    overflow: 'hidden',
+                    border: '3px solid var(--green-bg)',
+                    flexShrink: 0,
+                  }}
+                >
+                  {consultant.photo_url ? (
+                    <img
+                      src={consultant.photo_url}
+                      alt=""
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
                     />
+                  ) : (
+                    consultant.name.charAt(0)
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontFamily: 'var(--fd)',
+                      fontSize: 17,
+                      fontWeight: 600,
+                      color: 'var(--ink)',
+                      marginBottom: 2,
+                    }}
+                  >
+                    {consultant.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: 'var(--muted)',
+                      marginBottom: 5,
+                    }}
+                  >
+                    {consultant.specialization}
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 10,
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <span style={{ fontSize: 12, color: '#d97706' }}>
+                      {'★'.repeat(Math.round(consultant.rating))}{' '}
+                      {consultant.rating}
+                    </span>
+                    <span className="tag">
+                      {consultant.experience_years} thn
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: 'var(--ink)',
+                      }}
+                    >
+                      Rp {Number(consultant.rate).toLocaleString('id-ID')}/sesi
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
+          )}
 
-            <div className="panel bk-summary-panel">
-              <div className="panel-header">
-                <span className="panel-title">Ringkasan Booking</span>
+          <div className="card">
+            <div className="card-hd">
+              <span className="card-title">Pilih Tanggal</span>
+            </div>
+            <div className="card-body">
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {dates.map((d, i) => {
+                  const str = d.toISOString().split('T')[0];
+                  return (
+                    <button
+                      key={i}
+                      className={`date-btn ${date === str ? 'on' : ''}`}
+                      onClick={() => setDate(str)}
+                    >
+                      <span className="dn">{d.getDate()}</span>
+                      <span className="dm">{MN[d.getMonth()]}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="panel-body">
-                {error && <div className="alert alert-error">{error}</div>}
-                <div className="bk-summary-rows">
-                  <div className="bk-sum-row">
-                    <span>Konsultan</span>
-                    <strong>{consultant?.name || '—'}</strong>
+            </div>
+          </div>
+
+          {date && (
+            <div className="card">
+              <div className="card-hd">
+                <span className="card-title">Pilih Waktu</span>
+              </div>
+              <div className="card-body">
+                {slotsLoading ? (
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className="shimmer"
+                        style={{ width: 72, height: 35 }}
+                      />
+                    ))}
                   </div>
-                  <div className="bk-sum-row">
-                    <span>Tanggal</span>
-                    <strong>{selectedDate || '—'}</strong>
-                  </div>
-                  <div className="bk-sum-row">
-                    <span>Waktu</span>
-                    <strong>{selectedTime || '—'}</strong>
-                  </div>
-                  <div className="bk-sum-row">
-                    <span>Metode</span>
-                    <strong>
-                      {method === 'video_meeting' ? 'Video Meeting' : 'Chat'}
-                    </strong>
-                  </div>
-                  <div className="bk-sum-row">
-                    <span>Durasi</span>
-                    <strong>60 menit</strong>
-                  </div>
-                </div>
-                {consultant && (
-                  <div className="bk-sum-total">
-                    <span>Total Biaya</span>
-                    <span className="bk-sum-price">
-                      Rp {Number(consultant.rate).toLocaleString('id-ID')}
-                    </span>
+                ) : slots.length === 0 ? (
+                  <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+                    Tidak ada slot tersedia untuk tanggal ini.
+                  </p>
+                ) : (
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {slots.map((s, i) => (
+                      <button
+                        key={i}
+                        disabled={!s.is_available}
+                        className={`slot-btn ${time === s.time ? 'on' : ''}`}
+                        onClick={() => setTime(s.time)}
+                      >
+                        {s.time}
+                      </button>
+                    ))}
                   </div>
                 )}
-                <button
-                  className="btn btn-primary btn-full"
-                  style={{ marginTop: 20 }}
-                  onClick={handleBooking}
-                  disabled={loading || !selectedDate || !selectedTime}
-                >
-                  {loading ? (
-                    <>
-                      <span className="spinner" />
-                      &ensp;Memproses...
-                    </>
-                  ) : (
-                    'Konfirmasi Booking'
-                  )}
-                </button>
-                <button
-                  className="btn btn-ghost btn-full"
-                  style={{ marginTop: 10 }}
-                  onClick={() => navigate('/consultation')}
-                >
-                  Batal
-                </button>
-                <div className="bk-guarantee">
-                  <span>🔒</span>
-                  <p>
-                    Data booking otomatis diperbarui di Dashboard dan Profil
-                    Anda.
-                  </p>
-                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="card">
+            <div className="card-hd">
+              <span className="card-title">Metode Konsultasi</span>
+            </div>
+            <div className="card-body">
+              <div style={{ display: 'flex', gap: 12 }}>
+                {[
+                  ['chat', '💬', 'Chat'],
+                  ['video_meeting', '📹', 'Video Meeting'],
+                ].map(([v, ic, lb]) => (
+                  <label
+                    key={v}
+                    className={`mopt ${method === v ? 'on' : ''}`}
+                    onClick={() => setMethod(v)}
+                  >
+                    <input
+                      type="radio"
+                      name="method"
+                      value={v}
+                      checked={method === v}
+                      onChange={() => setMethod(v)}
+                    />
+                    <span className="mi">{ic}</span>
+                    <span className="ml">{lb}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-hd">
+              <span className="card-title">Topik Konsultasi</span>
+            </div>
+            <div className="card-body">
+              <div className="fg" style={{ marginBottom: 0 }}>
+                <textarea
+                  placeholder="Topik yang ingin didiskusikan... (opsional)"
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  rows={4}
+                />
               </div>
             </div>
           </div>
         </div>
+
+        <div
+          className="card bk-summary"
+          style={{ position: 'sticky', top: 72 }}
+        >
+          <div className="card-hd">
+            <span className="card-title">Ringkasan Booking</span>
+          </div>
+          <div className="card-body">
+            {err && <div className="alert alert-err">{err}</div>}
+            <div style={{ marginBottom: 14 }}>
+              {[
+                ['Konsultan', consultant?.name || '—'],
+                ['Tanggal', date || '—'],
+                ['Waktu', time || '—'],
+                [
+                  'Metode',
+                  method === 'video_meeting' ? 'Video Meeting' : 'Chat',
+                ],
+                ['Durasi', '60 menit'],
+              ].map(([k, v]) => (
+                <div
+                  key={k}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    padding: '9px 0',
+                    borderBottom: '1px solid var(--border)',
+                    fontSize: 12,
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ color: 'var(--muted)', flexShrink: 0 }}>
+                    {k}
+                  </span>
+                  <strong style={{ color: 'var(--ink)', textAlign: 'right' }}>
+                    {v}
+                  </strong>
+                </div>
+              ))}
+            </div>
+            {consultant && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: 'var(--green-mist)',
+                  borderRadius: 8,
+                  padding: '12px 14px',
+                  marginBottom: 14,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: 'var(--ink-2)',
+                  }}
+                >
+                  Total Biaya
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'var(--fd)',
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: 'var(--ink)',
+                  }}
+                >
+                  Rp {Number(consultant.rate).toLocaleString('id-ID')}
+                </span>
+              </div>
+            )}
+            <button
+              className="btn btn-dark btn-full"
+              onClick={submit}
+              disabled={busy.bk || !date || !time}
+            >
+              {busy.bk ? (
+                <>
+                  <span className="spin" />
+                  &ensp;Memproses...
+                </>
+              ) : (
+                'Konfirmasi Booking'
+              )}
+            </button>
+            <button
+              className="btn btn-outline btn-full"
+              style={{ marginTop: 8 }}
+              onClick={() => navigate('/consultation')}
+            >
+              Batal
+            </button>
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                alignItems: 'flex-start',
+                background: 'var(--green-mist)',
+                borderRadius: 8,
+                padding: '10px 12px',
+                marginTop: 12,
+                fontSize: 11,
+                color: 'var(--muted)',
+              }}
+            >
+              <span>🔒</span>
+              <span>
+                Data booking otomatis diperbarui di Dashboard dan Profil.
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

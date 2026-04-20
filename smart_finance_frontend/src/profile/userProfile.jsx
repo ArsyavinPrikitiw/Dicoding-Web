@@ -10,82 +10,81 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import PageLayout from '../components/PageLayout.jsx';
+import Layout from '../components/Layout.jsx';
 import { useApp } from '../context/AppContext.jsx';
-import './userProfile.css';
 
-export default function UserProfile() {
+export default function Profile() {
   const navigate = useNavigate();
   const {
     user,
     healthHistory,
     bookings,
-    loading,
+    busy,
     updateProfile,
-    changePassword,
+    changePass,
     logout,
   } = useApp();
-  const [tab, setTab] = useState('profile');
+  const [tab, setTab] = useState('info');
   const [editMode, setEditMode] = useState(false);
-  const [editForm, setEditForm] = useState({
+  const [ef, setEf] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
   });
-  const [passForm, setPassForm] = useState({
+  const [pf, setPf] = useState({
     old_password: '',
     new_password: '',
     confirm: '',
   });
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState({ type: '', text: '' });
+  const [msg, setMsg] = useState({ t: '', s: '' });
 
-  const handleUpdateProfile = async () => {
+  const saveProfile = async () => {
     setSaving(true);
-    setMsg({ type: '', text: '' });
+    setMsg({ t: '', s: '' });
     try {
-      const data = await updateProfile({
-        name: editForm.name,
-        phone: editForm.phone || undefined,
+      const d = await updateProfile({
+        name: ef.name,
+        phone: ef.phone || undefined,
       });
-      if (data.status === 'success') {
+      if (d.status === 'success') {
         setEditMode(false);
-        setMsg({ type: 'success', text: 'Profil berhasil diperbarui.' });
-      } else {
-        setMsg({ type: 'error', text: data.message });
-      }
+        setMsg({ t: 'ok', s: 'Profil berhasil diperbarui.' });
+      } else setMsg({ t: 'err', s: d.message || 'Gagal menyimpan.' });
     } catch {
-      setMsg({ type: 'error', text: 'Gagal memperbarui profil.' });
+      setMsg({ t: 'err', s: 'Gagal terhubung ke server.' });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleChangePassword = async () => {
-    if (passForm.new_password !== passForm.confirm) {
-      setMsg({ type: 'error', text: 'Password baru tidak cocok.' });
+  const savePass = async () => {
+    if (pf.new_password !== pf.confirm) {
+      setMsg({ t: 'err', s: 'Password baru tidak cocok.' });
+      return;
+    }
+    if (pf.new_password.length < 6) {
+      setMsg({ t: 'err', s: 'Password minimal 6 karakter.' });
       return;
     }
     setSaving(true);
-    setMsg({ type: '', text: '' });
+    setMsg({ t: '', s: '' });
     try {
-      const data = await changePassword({
-        old_password: passForm.old_password,
-        new_password: passForm.new_password,
+      const d = await changePass({
+        old_password: pf.old_password,
+        new_password: pf.new_password,
       });
-      if (data.status === 'success') {
-        setPassForm({ old_password: '', new_password: '', confirm: '' });
-        setMsg({ type: 'success', text: 'Password berhasil diubah.' });
-      } else {
-        setMsg({ type: 'error', text: data.message });
-      }
+      if (d.status === 'success') {
+        setPf({ old_password: '', new_password: '', confirm: '' });
+        setMsg({ t: 'ok', s: 'Password berhasil diubah.' });
+      } else setMsg({ t: 'err', s: d.message || 'Gagal mengubah password.' });
     } catch {
-      setMsg({ type: 'error', text: 'Gagal mengubah password.' });
+      setMsg({ t: 'err', s: 'Gagal terhubung.' });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleLogout = () => {
+  const doLogout = () => {
     logout();
     navigate('/');
   };
@@ -99,97 +98,187 @@ export default function UserProfile() {
         .toUpperCase()
     : 'SF';
   const lastHC = healthHistory[0];
-  const statusColor =
+  const sc =
     lastHC?.status === 'Sehat'
-      ? 'var(--sage)'
+      ? '#2d7a52'
       : lastHC?.status === 'Rawan'
-        ? 'var(--amber)'
-        : 'var(--rose)';
+        ? '#d97706'
+        : '#b91c1c';
+  const scBg =
+    lastHC?.status === 'Sehat'
+      ? '#dcfce7'
+      : lastHC?.status === 'Rawan'
+        ? '#fef3c7'
+        : '#fee2e2';
+  const scC =
+    lastHC?.status === 'Sehat'
+      ? '#166534'
+      : lastHC?.status === 'Rawan'
+        ? '#854d0e'
+        : '#b91c1c';
+
+  const totalBk = bookings.length;
+  const doneBk = bookings.filter((b) => b.status === 'completed').length;
+  const activeBk = bookings.filter((b) => b.status === 'booked').length;
 
   const chartData = [...healthHistory]
     .reverse()
     .slice(-8)
     .map((h) => ({
-      date: new Date(h.created_at).toLocaleDateString('id-ID', {
+      tgl: new Date(h.created_at).toLocaleDateString('id-ID', {
         month: 'short',
         day: 'numeric',
       }),
-      dti: parseFloat(h.debt_to_income_ratio),
-      score: h.score,
+      dti: parseFloat(h.debt_to_income_ratio) || 0,
+      score: h.score || 0,
       status: h.status,
     }));
 
-  const getBarColor = (status) =>
-    status === 'Sehat' ? '#5a8a6a' : status === 'Rawan' ? '#e8a020' : '#c94040';
-  const totalBookings = bookings.length;
-  const completedBookings = bookings.filter(
-    (b) => b.status === 'completed',
-  ).length;
-  const activeBookings = bookings.filter((b) => b.status === 'booked').length;
+  const bColor = (s) =>
+    s === 'Sehat' ? '#2d7a52' : s === 'Rawan' ? '#d97706' : '#b91c1c';
 
   return (
-    <PageLayout
+    <Layout
       title="Profil Saya"
       subtitle="Kelola akun dan pantau perkembangan keuanganmu"
     >
-      <div className="prof-top-grid">
-        <div className="prof-identity-card">
-          <div className="prof-avatar-wrap">
-            <div className="prof-avatar">{initials}</div>
-          </div>
-          <div className="prof-identity-info">
-            <h2 className="prof-name">{user?.name}</h2>
-            <p className="prof-email">{user?.email}</p>
-            {user?.phone && <p className="prof-phone">📱 {user.phone}</p>}
-            <p className="prof-joined">
-              Bergabung sejak{' '}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '260px 1fr',
+          gap: 18,
+          marginBottom: 18,
+          alignItems: 'start',
+        }}
+        className="prof-top"
+      >
+        <div
+          className="card"
+          style={{
+            background: 'linear-gradient(145deg, var(--ink), var(--ink-2))',
+          }}
+        >
+          <div
+            className="card-body"
+            style={{ textAlign: 'center', padding: '26px 18px' }}
+          >
+            <div
+              style={{
+                width: 66,
+                height: 66,
+                borderRadius: '50%',
+                background:
+                  'linear-gradient(135deg, var(--green-lt), var(--green-3))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 24,
+                fontWeight: 800,
+                color: 'var(--ink)',
+                margin: '0 auto 12px',
+                border: '3px solid rgba(255,255,255,.15)',
+              }}
+            >
+              {initials}
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--fd)',
+                fontSize: 17,
+                fontWeight: 600,
+                color: '#fff',
+                marginBottom: 4,
+              }}
+            >
+              {user?.name}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: 'rgba(255,255,255,.45)',
+                marginBottom: 14,
+              }}
+            >
+              {user?.email}
+            </div>
+            {user?.phone && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,.35)',
+                  marginBottom: 10,
+                }}
+              >
+                📱 {user.phone}
+              </div>
+            )}
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.25)' }}>
+              Bergabung{' '}
               {user?.created_at
                 ? new Date(user.created_at).toLocaleDateString('id-ID', {
                     month: 'long',
                     year: 'numeric',
                   })
                 : '—'}
-            </p>
+            </div>
           </div>
         </div>
 
-        <div className="prof-stats-row">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 12,
+          }}
+          className="prof-stats"
+        >
           {[
-            {
-              icon: '💊',
-              label: 'Total Health Check',
-              value: healthHistory.length,
-            },
-            { icon: '📅', label: 'Total Booking', value: totalBookings },
-            { icon: '✅', label: 'Sesi Selesai', value: completedBookings },
-            {
-              icon: '🎯',
-              label: 'Skor Terakhir',
-              value: lastHC ? `${lastHC.score}/100` : '—',
-            },
-          ].map((s, i) => (
-            <div key={i} className="prof-stat-card">
-              <div className="prof-stat-icon">{s.icon}</div>
-              <div className="prof-stat-value">{s.value}</div>
-              <div className="prof-stat-label">{s.label}</div>
+            ['💊', 'Health Check', healthHistory.length],
+            ['📅', 'Total Booking', totalBk],
+            ['✅', 'Sesi Selesai', doneBk],
+            ['🎯', 'Skor Terakhir', lastHC ? `${lastHC.score}/100` : '—'],
+          ].map(([ic, lb, v]) => (
+            <div
+              key={lb}
+              className="card"
+              style={{ textAlign: 'center', padding: '16px 10px' }}
+            >
+              <div style={{ fontSize: 22, marginBottom: 7 }}>{ic}</div>
+              <div
+                style={{
+                  fontFamily: 'var(--fd)',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: 'var(--ink)',
+                  lineHeight: 1,
+                  marginBottom: 5,
+                }}
+              >
+                {v}
+              </div>
+              <div
+                style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.3 }}
+              >
+                {lb}
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="toggle-tabs">
+      <div className="tabs">
         {[
-          ['profile', 'Edit Profil'],
+          ['info', 'Informasi Pribadi'],
           ['stats', `Statistik (${healthHistory.length})`],
-          ['bookings', `Konsultasi (${totalBookings})`],
-          ['security', 'Keamanan'],
+          ['bk', `Konsultasi (${totalBk})`],
+          ['sec', 'Keamanan'],
         ].map(([v, l]) => (
           <button
             key={v}
-            className={`toggle-tab ${tab === v ? 'active' : ''}`}
+            className={`tab ${tab === v ? 'on' : ''}`}
             onClick={() => {
               setTab(v);
-              setMsg({ type: '', text: '' });
+              setMsg({ t: '', s: '' });
             }}
           >
             {l}
@@ -197,94 +286,115 @@ export default function UserProfile() {
         ))}
       </div>
 
-      {tab === 'profile' && (
-        <div
-          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}
-        >
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-title">Informasi Pribadi</span>
+      {tab === 'info' && (
+        <div className="grid-1-1" style={{ alignItems: 'start' }}>
+          <div className="card">
+            <div className="card-hd">
+              <span className="card-title">Informasi Pribadi</span>
               {!editMode && (
                 <button
-                  className="btn btn-ghost"
-                  style={{ fontSize: 12, padding: '7px 14px' }}
+                  className="btn btn-outline btn-sm"
                   onClick={() => {
                     setEditMode(true);
-                    setEditForm({
-                      name: user?.name || '',
-                      phone: user?.phone || '',
-                    });
+                    setEf({ name: user?.name || '', phone: user?.phone || '' });
                   }}
                 >
                   Edit
                 </button>
               )}
             </div>
-            <div className="panel-body">
-              {msg.text && (
-                <div className={`alert alert-${msg.type}`}>{msg.text}</div>
+            <div className="card-body">
+              {msg.s && (
+                <div
+                  className={`alert ${msg.t === 'ok' ? 'alert-ok' : 'alert-err'}`}
+                >
+                  {msg.s}
+                </div>
               )}
               {editMode ? (
                 <>
-                  <div className="form-group">
+                  <div className="fg">
                     <label>Nama Lengkap</label>
                     <input
                       type="text"
-                      value={editForm.name}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, name: e.target.value })
-                      }
+                      value={ef.name}
+                      onChange={(e) => setEf({ ...ef, name: e.target.value })}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="fg">
                     <label>Nomor Telepon</label>
                     <input
                       type="tel"
                       placeholder="08xxxxxxxxxx"
-                      value={editForm.phone}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, phone: e.target.value })
-                      }
+                      value={ef.phone}
+                      onChange={(e) => setEf({ ...ef, phone: e.target.value })}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="fg">
                     <label>Email</label>
-                    <input
-                      type="email"
-                      value={user?.email}
-                      disabled
-                      style={{ opacity: 0.5 }}
-                    />
+                    <input type="email" value={user?.email} disabled />
+                    <p
+                      style={{
+                        fontSize: 11,
+                        color: 'var(--muted)',
+                        marginTop: 4,
+                      }}
+                    >
+                      Email tidak dapat diubah
+                    </p>
                   </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 9 }}>
                     <button
-                      className="btn btn-ghost"
+                      className="btn btn-outline"
                       style={{ flex: 1 }}
                       onClick={() => setEditMode(false)}
                     >
                       Batal
                     </button>
                     <button
-                      className="btn btn-primary"
+                      className="btn btn-dark"
                       style={{ flex: 1 }}
-                      onClick={handleUpdateProfile}
+                      onClick={saveProfile}
                       disabled={saving}
                     >
-                      {saving ? 'Menyimpan...' : 'Simpan'}
+                      {saving ? (
+                        <>
+                          <span className="spin" />
+                          &ensp;Menyimpan...
+                        </>
+                      ) : (
+                        'Simpan'
+                      )}
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="prof-info-rows">
+                <div>
                   {[
                     ['Nama Lengkap', user?.name],
                     ['Email', user?.email],
                     ['Telepon', user?.phone || '—'],
-                    ['Status Akun', 'Member Aktif'],
+                    ['Status', 'Member Aktif'],
                   ].map(([k, v]) => (
-                    <div key={k} className="prof-info-row">
-                      <span className="prof-info-key">{k}</span>
-                      <span className="prof-info-val">{v}</span>
+                    <div
+                      key={k}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '10px 0',
+                        borderBottom: '1px solid var(--border)',
+                        fontSize: 13,
+                        flexWrap: 'wrap',
+                        gap: 6,
+                      }}
+                    >
+                      <span style={{ color: 'var(--muted)', fontWeight: 500 }}>
+                        {k}
+                      </span>
+                      <span style={{ fontWeight: 600, color: 'var(--ink)' }}>
+                        {v}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -292,28 +402,34 @@ export default function UserProfile() {
             </div>
           </div>
 
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-title">Status Keuangan Terkini</span>
+          <div className="card">
+            <div className="card-hd">
+              <span className="card-title">Status Keuangan Terkini</span>
             </div>
-            <div className="panel-body">
-              {loading.health ? (
-                <div className="loading-center">
-                  <div className="spinner spinner-dark" />
+            <div className="card-body">
+              {busy.init && !lastHC ? (
+                <div className="loading">
+                  <div className="spin spin-dk" />
                 </div>
               ) : lastHC ? (
                 <>
-                  <div className="prof-status-display">
-                    <div
-                      className="prof-status-badge"
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 11,
+                      flexWrap: 'wrap',
+                      gap: 8,
+                    }}
+                  >
+                    <span
+                      className="badge"
                       style={{
-                        background:
-                          lastHC.status === 'Sehat'
-                            ? '#dcfce7'
-                            : lastHC.status === 'Rawan'
-                              ? '#fef3c7'
-                              : '#fee2e2',
-                        color: statusColor,
+                        background: scBg,
+                        color: scC,
+                        fontSize: 12,
+                        padding: '4px 12px',
                       }}
                     >
                       {lastHC.status === 'Sehat'
@@ -322,22 +438,25 @@ export default function UserProfile() {
                           ? '⚠️'
                           : '🔴'}{' '}
                       {lastHC.status}
-                    </div>
-                    <div className="prof-score-display">
-                      {lastHC.score}
-                      <span>/100</span>
-                    </div>
-                  </div>
-                  <div
-                    className="progress-bar-wrap"
-                    style={{ marginBottom: 20 }}
-                  >
-                    <div
-                      className="progress-bar"
+                    </span>
+                    <span
                       style={{
-                        width: `${lastHC.score}%`,
-                        background: statusColor,
+                        fontFamily: 'var(--fd)',
+                        fontSize: 26,
+                        fontWeight: 700,
+                        color: 'var(--ink)',
                       }}
+                    >
+                      {lastHC.score}
+                      <span style={{ fontSize: 13, color: 'var(--muted)' }}>
+                        /100
+                      </span>
+                    </span>
+                  </div>
+                  <div className="bar-wrap" style={{ marginBottom: 14 }}>
+                    <div
+                      className="bar"
+                      style={{ width: `${lastHC.score}%`, background: sc }}
                     />
                   </div>
                   {[
@@ -345,32 +464,58 @@ export default function UserProfile() {
                     ['EIR Ratio', `${lastHC.expense_to_income_ratio}%`],
                     ['Dana Darurat', `${lastHC.emergency_fund_months} bulan`],
                   ].map(([k, v]) => (
-                    <div key={k} className="prof-info-row">
-                      <span className="prof-info-key">{k}</span>
-                      <span
-                        className="prof-info-val"
-                        style={{ fontWeight: 700 }}
-                      >
+                    <div
+                      key={k}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '9px 0',
+                        borderBottom: '1px solid var(--border)',
+                        fontSize: 13,
+                      }}
+                    >
+                      <span style={{ color: 'var(--muted)', fontWeight: 500 }}>
+                        {k}
+                      </span>
+                      <span style={{ fontWeight: 700, color: 'var(--ink)' }}>
                         {v}
                       </span>
                     </div>
                   ))}
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--muted)',
+                      marginTop: 9,
+                    }}
+                  >
+                    Terakhir:{' '}
+                    {new Date(lastHC.created_at).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </p>
                   <button
-                    className="btn btn-ghost btn-full"
-                    style={{ marginTop: 12 }}
+                    className="btn btn-outline btn-full"
+                    style={{ marginTop: 11, fontSize: 12 }}
                     onClick={() => navigate('/financial-health')}
                   >
-                    Lihat Riwayat
+                    Lihat Detail &amp; Riwayat
                   </button>
                 </>
               ) : (
-                <div className="empty-box">
-                  <p>Belum ada data pemeriksaan.</p>
+                <div className="empty" style={{ padding: '22px 10px' }}>
+                  <div className="ei">💊</div>
+                  <h3>Belum Ada Data</h3>
+                  <p>Lakukan Financial Health Check</p>
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-dark"
+                    style={{ marginTop: 12 }}
                     onClick={() => navigate('/financial-health')}
                   >
-                    Mulai
+                    Mulai Sekarang
                   </button>
                 </div>
               )}
@@ -380,167 +525,435 @@ export default function UserProfile() {
       )}
 
       {tab === 'stats' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {healthHistory.length > 0 ? (
-            <div className="panel">
-              <div className="panel-header">
-                <span className="panel-title">Tren DTI Ratio</span>
-              </div>
-              <div className="panel-body">
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart
-                    data={chartData}
-                    margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
-                    barSize={32}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#f0f0f0"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 11 }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 11 }}
-                      axisLine={false}
-                      tickLine={false}
-                      domain={[0, 100]}
-                    />
-                    <Tooltip contentStyle={{ borderRadius: 10 }} />
-                    <Bar dataKey="dti" radius={[6, 6, 0, 0]}>
-                      {chartData.map((entry, i) => (
-                        <Cell key={i} fill={getBarColor(entry.status)} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+        <div className="col">
+          {busy.init && healthHistory.length === 0 ? (
+            <div className="loading">
+              <div className="spin spin-dk" />
+            </div>
+          ) : healthHistory.length === 0 ? (
+            <div className="empty">
+              <div className="ei">📊</div>
+              <h3>Belum Ada Data Statistik</h3>
+              <p>
+                Lakukan Financial Health Check untuk melihat tren keuanganmu
+              </p>
+              <button
+                className="btn btn-dark"
+                style={{ marginTop: 14 }}
+                onClick={() => navigate('/financial-health')}
+              >
+                Mulai Health Check
+              </button>
             </div>
           ) : (
-            <div className="panel">
-              <div className="panel-body">Tidak ada statistik tersedia.</div>
+            <>
+              <div className="card">
+                <div className="card-hd">
+                  <span className="card-title">
+                    Tren DTI Ratio — {chartData.length} Pemeriksaan Terakhir
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                    Data real-time
+                  </span>
+                </div>
+                <div className="card-body">
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart
+                      data={chartData}
+                      margin={{ top: 4, right: 4, left: -22, bottom: 0 }}
+                      barSize={26}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#f0f0f0"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="tgl"
+                        tick={{ fontSize: 11, fill: 'var(--muted)' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: 'var(--muted)' }}
+                        axisLine={false}
+                        tickLine={false}
+                        domain={[0, 100]}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: 9,
+                          border: '1px solid var(--border)',
+                          fontSize: 12,
+                        }}
+                        formatter={(v) => [`${v}%`, 'DTI Ratio']}
+                        labelStyle={{ color: 'var(--ink)', fontWeight: 600 }}
+                      />
+                      <Bar dataKey="dti" radius={[5, 5, 0, 0]}>
+                        {chartData.map((e, i) => (
+                          <Cell key={i} fill={bColor(e.status)} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 14,
+                      justifyContent: 'center',
+                      marginTop: 8,
+                    }}
+                  >
+                    {[
+                      ['#2d7a52', 'Sehat'],
+                      ['#d97706', 'Rawan'],
+                      ['#b91c1c', 'Kritis'],
+                    ].map(([c, l]) => (
+                      <div
+                        key={l}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          fontSize: 11,
+                          color: 'var(--muted)',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 9,
+                            height: 9,
+                            borderRadius: 3,
+                            background: c,
+                          }}
+                        />
+                        {l}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-hd">
+                  <span className="card-title">Tren Skor Finansial</span>
+                </div>
+                <div className="card-body">
+                  <ResponsiveContainer width="100%" height={190}>
+                    <BarChart
+                      data={chartData}
+                      margin={{ top: 4, right: 4, left: -22, bottom: 0 }}
+                      barSize={22}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#f0f0f0"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="tgl"
+                        tick={{ fontSize: 11, fill: 'var(--muted)' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: 'var(--muted)' }}
+                        axisLine={false}
+                        tickLine={false}
+                        domain={[0, 100]}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: 9,
+                          border: '1px solid var(--border)',
+                          fontSize: 12,
+                        }}
+                        formatter={(v) => [`${v}/100`, 'Skor']}
+                        labelStyle={{ color: 'var(--ink)', fontWeight: 600 }}
+                      />
+                      <Bar dataKey="score" radius={[5, 5, 0, 0]}>
+                        {chartData.map((e, i) => (
+                          <Cell key={i} fill={bColor(e.status)} opacity={0.7} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-hd">
+                  <span className="card-title">Semua Riwayat Pemeriksaan</span>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                    {healthHistory.length} total
+                  </span>
+                </div>
+                <div className="tbl-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Tanggal</th>
+                        <th>DTI</th>
+                        <th>EIR</th>
+                        <th>Dana Darurat</th>
+                        <th>Skor</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {healthHistory.map((h) => (
+                        <tr key={h.id}>
+                          <td style={{ fontSize: 12 }}>
+                            {new Date(h.created_at).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              },
+                            )}
+                          </td>
+                          <td>
+                            <strong>{h.debt_to_income_ratio}%</strong>
+                          </td>
+                          <td>
+                            <strong>{h.expense_to_income_ratio}%</strong>
+                          </td>
+                          <td>
+                            <strong>{h.emergency_fund_months} bln</strong>
+                          </td>
+                          <td>
+                            <span
+                              style={{
+                                fontFamily: 'var(--fd)',
+                                fontSize: 15,
+                                fontWeight: 700,
+                              }}
+                            >
+                              {h.score}
+                            </span>
+                            <span
+                              style={{ color: 'var(--muted)', fontSize: 11 }}
+                            >
+                              /100
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              className={`badge ${h.status === 'Sehat' ? 'b-green' : h.status === 'Rawan' ? 'b-amber' : 'b-red'}`}
+                            >
+                              {h.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {tab === 'bk' && (
+        <div className="card">
+          <div className="card-hd">
+            <span className="card-title">Riwayat Konsultasi</span>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <span className="tag">{totalBk} total</span>
+              <span className="badge b-green">{doneBk} selesai</span>
+              <span className="badge b-blue">{activeBk} aktif</span>
+            </div>
+          </div>
+          {bookings.length === 0 ? (
+            <div className="empty">
+              <div className="ei">📅</div>
+              <h3>Belum Ada Riwayat</h3>
+              <p>Mulai konsultasi dengan ahli keuangan</p>
+              <button
+                className="btn btn-dark"
+                style={{ marginTop: 14 }}
+                onClick={() => navigate('/consultation')}
+              >
+                Cari Konsultan
+              </button>
+            </div>
+          ) : (
+            <div className="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Konsultan</th>
+                    <th>Tanggal</th>
+                    <th>Waktu</th>
+                    <th>Metode</th>
+                    <th>Biaya</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map((b) => (
+                    <tr key={b.id}>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>
+                          {b.consultant_name}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+                          {b.specialization}
+                        </div>
+                      </td>
+                      <td style={{ fontSize: 12 }}>
+                        {new Date(b.booking_date).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </td>
+                      <td>{b.booking_time}</td>
+                      <td>
+                        <span className="tag">
+                          {b.consultation_method === 'video_meeting'
+                            ? '📹 Video'
+                            : '💬 Chat'}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: 600 }}>
+                        {b.total_fee
+                          ? `Rp ${Number(b.total_fee).toLocaleString('id-ID')}`
+                          : '-'}
+                      </td>
+                      <td>
+                        <span
+                          className={`badge ${b.status === 'booked' ? 'b-blue' : b.status === 'completed' ? 'b-green' : 'b-gray'}`}
+                        >
+                          {b.status === 'booked'
+                            ? 'Terjadwal'
+                            : b.status === 'completed'
+                              ? 'Selesai'
+                              : 'Dibatalkan'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
       )}
 
-      {tab === 'bookings' && (
-        <div className="panel">
-          <div className="panel-header">
-            <span className="panel-title">Riwayat Konsultasi</span>
-          </div>
-          <div className="panel-body">
-            {bookings.length > 0 ? (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Konsultan</th>
-                      <th>Tanggal</th>
-                      <th>Metode</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bookings.map((b) => (
-                      <tr key={b.id}>
-                        <td>{b.consultant_name}</td>
-                        <td>
-                          {new Date(b.booking_date).toLocaleDateString('id-ID')}
-                        </td>
-                        <td>{b.consultation_method}</td>
-                        <td>
-                          <span className={`badge badge-${b.status}`}>
-                            {b.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p>Belum ada riwayat booking.</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {tab === 'security' && (
-        <div
-          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}
-        >
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-title">Ubah Password</span>
+      {tab === 'sec' && (
+        <div className="grid-1-1" style={{ alignItems: 'start' }}>
+          <div className="card">
+            <div className="card-hd">
+              <span className="card-title">Ubah Password</span>
             </div>
-            <div className="panel-body">
-              {msg.text && (
-                <div className={`alert alert-${msg.type}`}>{msg.text}</div>
+            <div className="card-body">
+              {msg.s && (
+                <div
+                  className={`alert ${msg.t === 'ok' ? 'alert-ok' : 'alert-err'}`}
+                >
+                  {msg.s}
+                </div>
               )}
-              <div className="form-group">
+              <div className="fg">
                 <label>Password Lama</label>
                 <input
                   type="password"
-                  value={passForm.old_password}
+                  placeholder="Password saat ini"
+                  value={pf.old_password}
                   onChange={(e) =>
-                    setPassForm({ ...passForm, old_password: e.target.value })
+                    setPf({ ...pf, old_password: e.target.value })
                   }
                 />
               </div>
-              <div className="form-group">
+              <div className="fg">
                 <label>Password Baru</label>
                 <input
                   type="password"
-                  value={passForm.new_password}
+                  placeholder="Minimal 6 karakter"
+                  value={pf.new_password}
                   onChange={(e) =>
-                    setPassForm({ ...passForm, new_password: e.target.value })
+                    setPf({ ...pf, new_password: e.target.value })
                   }
                 />
               </div>
-              <div className="form-group">
-                <label>Konfirmasi Password</label>
+              <div className="fg">
+                <label>Konfirmasi Password Baru</label>
                 <input
                   type="password"
-                  value={passForm.confirm}
-                  onChange={(e) =>
-                    setPassForm({ ...passForm, confirm: e.target.value })
-                  }
+                  placeholder="Ulangi password baru"
+                  value={pf.confirm}
+                  onChange={(e) => setPf({ ...pf, confirm: e.target.value })}
                 />
               </div>
               <button
-                className="btn btn-primary btn-full"
-                onClick={handleChangePassword}
-                disabled={saving}
+                className="btn btn-dark btn-full"
+                onClick={savePass}
+                disabled={
+                  saving || !pf.old_password || !pf.new_password || !pf.confirm
+                }
               >
-                {saving ? 'Memproses...' : 'Ubah Password'}
+                {saving ? (
+                  <>
+                    <span className="spin" />
+                    &ensp;Menyimpan...
+                  </>
+                ) : (
+                  'Ubah Password'
+                )}
               </button>
             </div>
           </div>
-          <div className="panel">
-            <div className="panel-header">
-              <span className="panel-title">Sesi</span>
+
+          <div className="card">
+            <div className="card-hd">
+              <span className="card-title">Sesi &amp; Keamanan</span>
             </div>
-            <div className="panel-body">
-              <p
-                style={{ fontSize: 13, color: 'var(--sage)', marginBottom: 20 }}
-              >
-                Anda masuk sebagai <strong>{user?.email}</strong>
-              </p>
-              <button
-                className="btn btn-danger btn-full"
-                onClick={handleLogout}
-              >
+            <div className="card-body">
+              {[
+                ['✅', 'Email Terverifikasi', user?.email || '—'],
+                ['🔒', 'Sesi Aktif', new Date().toLocaleDateString('id-ID')],
+              ].map(([ic, lb, dc]) => (
+                <div
+                  key={lb}
+                  style={{
+                    display: 'flex',
+                    gap: 11,
+                    alignItems: 'flex-start',
+                    marginBottom: 13,
+                    paddingBottom: 13,
+                    borderBottom: '1px solid var(--border)',
+                  }}
+                >
+                  <div style={{ fontSize: 18 }}>{ic}</div>
+                  <div>
+                    <div
+                      style={{
+                        fontWeight: 600,
+                        fontSize: 13,
+                        color: 'var(--ink)',
+                        marginBottom: 2,
+                      }}
+                    >
+                      {lb}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                      {dc}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button className="btn btn-red btn-full" onClick={doLogout}>
                 Keluar dari Akun
               </button>
             </div>
           </div>
         </div>
       )}
-    </PageLayout>
+    </Layout>
   );
 }
