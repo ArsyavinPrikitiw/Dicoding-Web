@@ -11,7 +11,7 @@ const ARTICLES = [
     bg: '#fef2f2',
     tc: '#b91c1c',
     title: 'Cara Keluar dari Jerat Pinjol Ilegal',
-    desc: 'Pinjaman online ilegal sering menjerat generasi muda dengan bunga yang mencekik. Kenali ciri-cirinya dan pelajari langkah keluar dari jeratannya.',
+    desc: 'Pinjaman online ilegal sering menjerat generasi muda dengan bunga yang mencekik. Kenali ciri-citinya dan pelajari langkah keluar dari jeratannya.',
     content: [
       'Pinjaman online (pinjol) ilegal adalah ancaman finansial terbesar bagi generasi muda Indonesia. Dengan kemudahan akses dan proses yang cepat, banyak orang terjebak tanpa menyadari konsekuensi jangka panjangnya.',
       'Ciri-ciri pinjol ilegal: tidak terdaftar di OJK, bunga harian yang sangat tinggi (1-4% per hari), ancaman dan intimidasi saat penagihan, serta akses ke seluruh kontak di ponsel peminjam.',
@@ -165,169 +165,167 @@ export default function Education() {
         >
           ← Kembali
         </button>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 300px',
-            gap: 20,
-            alignItems: 'start',
-          }}
-        >
-          <div className="card">
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${article.bg}, #fff)`,
-                padding: '28px 28px 22px',
-                borderBottom: '1px solid var(--border)',
-                display: 'flex',
-                gap: 20,
-                alignItems: 'flex-start',
-                flexWrap: 'wrap',
-              }}
-            >
-              <span style={{ fontSize: 48, flexShrink: 0 }}>
-                {article.icon}
-              </span>
-              <div>
-                <span
-                  className="badge"
-                  style={{
-                    background: article.bg,
-                    color: article.tc,
-                    marginBottom: 8,
-                    display: 'inline-block',
-                  }}
-                >
-                  {article.cat}
-                </span>
-                <h1
-                  style={{
-                    fontFamily: 'var(--fd)',
-                    fontSize: 22,
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    lineHeight: 1.3,
-                    marginBottom: 6,
-                    letterSpacing: '-.3px',
-                  }}
-                >
-                  {article.title}
-                </h1>
-                <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-                  ⏱ {article.mins} menit baca
-                </span>
-              </div>
-            </div>
-            <div className="card-body" style={{ maxWidth: 700 }}>
-              {article.content.map((p, i) => (
-                <p
-                  key={i}
-                  style={{
-                    fontSize: 14,
-                    color: 'var(--ink-2)',
-                    lineHeight: 1.8,
-                    marginBottom: 16,
-                  }}
-                >
-                  {p}
-                </p>
-              ))}
+        <div className="grid-2" style={{ gap: 20, alignItems: 'start' }}>
+          <div className="left-col">
+            <div className="card">
               <div
                 style={{
-                  background: 'var(--green-mist)',
-                  borderLeft: '4px solid var(--green-3)',
-                  borderRadius: 10,
-                  padding: '16px 20px',
-                  margin: '20px 0',
-                }}
-              >
-                <div
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 13,
-                    color: 'var(--ink)',
-                    marginBottom: 10,
-                  }}
-                >
-                  💡 Tips Praktis
-                </div>
-                {article.tips.map((t, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: 'flex',
-                      gap: 10,
-                      marginBottom: 8,
-                      fontSize: 13,
-                      color: 'var(--ink-2)',
-                      lineHeight: 1.55,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: '50%',
-                        background: 'var(--green-3)',
-                        flexShrink: 0,
-                        marginTop: 6,
-                      }}
-                    />
-                    <span>{t}</span>
-                  </div>
-                ))}
-              </div>
-              <div
-                style={{
-                  background: 'var(--ink)',
-                  borderRadius: 12,
-                  padding: '22px',
+                  background: `linear-gradient(135deg, ${article.bg}, #fff)`,
+                  padding: '28px 28px 22px',
+                  borderBottom: '1px solid var(--border)',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 16,
+                  gap: 20,
+                  alignItems: 'flex-start',
                   flexWrap: 'wrap',
                 }}
               >
-                <div>
+                <span style={{ fontSize: 48, flexShrink: 0 }}>
+                  {article.icon}
+                </span>
+                <div style={{ flex: 1, minWidth: '200px' }}>
+                  <span
+                    className="badge"
+                    style={{
+                      background: article.bg,
+                      color: article.tc,
+                      marginBottom: 8,
+                      display: 'inline-block',
+                    }}
+                  >
+                    {article.cat}
+                  </span>
+                  <h1
+                    style={{
+                      fontFamily: 'var(--fd)',
+                      fontSize: 22,
+                      fontWeight: 600,
+                      color: 'var(--ink)',
+                      lineHeight: 1.3,
+                      marginBottom: 6,
+                      letterSpacing: '-.3px',
+                    }}
+                  >
+                    {article.title}
+                  </h1>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                    ⏱ {article.mins} menit baca
+                  </span>
+                </div>
+              </div>
+              <div className="card-body">
+                {article.content.map((p, i) => (
+                  <p
+                    key={i}
+                    style={{
+                      fontSize: 14,
+                      color: 'var(--ink-2)',
+                      lineHeight: 1.8,
+                      marginBottom: 16,
+                    }}
+                  >
+                    {p}
+                  </p>
+                ))}
+                <div
+                  style={{
+                    background: 'var(--green-mist)',
+                    borderLeft: '4px solid var(--green-3)',
+                    borderRadius: 10,
+                    padding: '16px 20px',
+                    margin: '20px 0',
+                  }}
+                >
                   <div
                     style={{
                       fontWeight: 700,
-                      fontSize: 14,
-                      color: '#fff',
-                      marginBottom: 4,
+                      fontSize: 13,
+                      color: 'var(--ink)',
+                      marginBottom: 10,
                     }}
                   >
-                    Butuh panduan lebih personal?
+                    💡 Tips Praktis
                   </div>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: 'rgba(255,255,255,.6)',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    Konsultasikan kondisi keuanganmu dengan ahli berpengalaman
-                  </p>
+                  {article.tips.map((t, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: 'flex',
+                        gap: 10,
+                        marginBottom: 8,
+                        fontSize: 13,
+                        color: 'var(--ink-2)',
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          background: 'var(--green-3)',
+                          flexShrink: 0,
+                          marginTop: 6,
+                        }}
+                      />
+                      <span>{t}</span>
+                    </div>
+                  ))}
                 </div>
-                <button
-                  className="btn"
+                <div
                   style={{
-                    background: '#fff',
-                    color: 'var(--ink)',
-                    flexShrink: 0,
+                    background: 'var(--ink)',
+                    borderRadius: 12,
+                    padding: '22px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 16,
+                    flexWrap: 'wrap',
                   }}
-                  onClick={() => navigate('/consultation')}
                 >
-                  Konsultasi Sekarang
-                </button>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 14,
+                        color: '#fff',
+                        marginBottom: 4,
+                      }}
+                    >
+                      Butuh panduan lebih personal?
+                    </div>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: 'rgba(255,255,255,.6)',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      Konsultasikan kondisi keuanganmu dengan ahli berpengalaman
+                    </p>
+                  </div>
+                  <button
+                    className="btn"
+                    style={{
+                      background: '#fff',
+                      color: 'var(--ink)',
+                      flexShrink: 0,
+                    }}
+                    onClick={() => navigate('/consultation')}
+                  >
+                    Konsultasi Sekarang
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div
+            className="right-col"
+            style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+          >
             <div className="card">
-              <div className="card-head">
+              <div className="card-hd">
                 <span className="card-title">Artikel Terkait</span>
               </div>
               {ARTICLES.filter((a) => a.id !== article.id)
@@ -448,7 +446,7 @@ export default function Education() {
         <div
           style={{
             flex: 1,
-            minWidth: 200,
+            minWidth: '200px',
             position: 'relative',
             display: 'flex',
             alignItems: 'center',
@@ -534,7 +532,7 @@ export default function Education() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: 16,
           }}
         >
