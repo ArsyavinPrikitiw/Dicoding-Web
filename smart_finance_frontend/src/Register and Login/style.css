@@ -256,12 +256,22 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 15px;
-  padding: 3px;
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.af-eye:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.af-eye img {
+  width: 18px;
+  height: 18px;
+  opacity: 0.6;
 }
 
 .auth-forgot {
