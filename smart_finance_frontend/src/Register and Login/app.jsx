@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
-import hideIc from '../assets/hide.png';
-import viewIc from '../assets/view.png';
 import './style.css';
 
 export default function Auth() {
@@ -209,11 +207,7 @@ export default function Auth() {
                     className="af-eye"
                     onClick={() => setShowPw(!showPw)}
                   >
-                    <img
-                      src={showPw ? hideIc : viewIc}
-                      alt="toggle"
-                      width="20"
-                    />
+                    {showPw ? '🙈' : '👁'}
                   </button>
                 </div>
               </div>
@@ -306,11 +300,7 @@ export default function Auth() {
                     className="af-eye"
                     onClick={() => setShowPw(!showPw)}
                   >
-                    <img
-                      src={showPw ? hideIc : viewIc}
-                      alt="toggle"
-                      width="20"
-                    />
+                    {showPw ? '🙈' : '👁'}
                   </button>
                 </div>
               </div>

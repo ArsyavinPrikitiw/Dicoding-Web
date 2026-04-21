@@ -535,7 +535,7 @@ export default function FinancialHealth() {
                       <td>
                         <span
                           style={{
-                            fontFamily: 'var(--fd)',
+                            fontFamily: "'Montserrat', sans-serif",
                             fontSize: 15,
                             fontWeight: 700,
                           }}

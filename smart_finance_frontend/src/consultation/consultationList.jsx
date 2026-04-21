@@ -131,7 +131,7 @@ export default function ConsultationList() {
                 fontSize: 12,
                 background: '#fff',
                 outline: 'none',
-                fontFamily: 'var(--fb)',
+                fontFamily: "'Montserrat', sans-serif",
                 color: 'var(--ink)',
                 cursor: 'pointer',
               }}
@@ -239,7 +239,7 @@ export default function ConsultationList() {
                   <div style={{ padding: '13px 15px', flex: 1 }}>
                     <div
                       style={{
-                        fontFamily: 'var(--fd)',
+                        fontFamily: "'Montserrat', sans-serif",
                         fontSize: 15,
                         fontWeight: 600,
                         color: 'var(--ink)',

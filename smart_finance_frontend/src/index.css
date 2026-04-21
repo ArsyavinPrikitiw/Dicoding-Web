@@ -33,8 +33,8 @@
   --sh: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
   --sh-md: 0 4px 16px rgba(0, 0, 0, 0.1);
   --sh-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --fd: 'Fraunces', Georgia, serif;
-  --fb: 'DM Sans', system-ui, sans-serif;
+  --fd: 'Montserrat', sans-serif;
+  --fb: 'Montserrat', sans-serif;
   --sw: 240px;
   --hh: 60px;
   --tr: 0.18s ease;

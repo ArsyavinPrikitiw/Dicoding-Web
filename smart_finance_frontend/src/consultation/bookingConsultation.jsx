@@ -103,7 +103,7 @@ export default function BookingConsultation() {
               </div>
               <h2
                 style={{
-                  fontFamily: 'var(--fd)',
+                  fontFamily: "'Montserrat', sans-serif",
                   fontSize: 24,
                   fontWeight: 600,
                   color: 'var(--ink)',
@@ -259,7 +259,7 @@ export default function BookingConsultation() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
-                      fontFamily: 'var(--fd)',
+                      fontFamily: "'Montserrat', sans-serif",
                       fontSize: 17,
                       fontWeight: 600,
                       color: 'var(--ink)',
@@ -479,7 +479,7 @@ export default function BookingConsultation() {
                 </span>
                 <span
                   style={{
-                    fontFamily: 'var(--fd)',
+                    fontFamily: "'Montserrat', sans-serif",
                     fontSize: 18,
                     fontWeight: 700,
                     color: 'var(--ink)',

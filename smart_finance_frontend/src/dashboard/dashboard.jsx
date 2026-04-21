@@ -286,7 +286,7 @@ export default function Dashboard() {
                         <span
                           style={{
                             marginLeft: 'auto',
-                            fontFamily: 'var(--fd)',
+                            fontFamily: "'Montserrat', sans-serif",
                             fontSize: 16,
                             fontWeight: 700,
                             color: 'var(--ink)',
@@ -552,7 +552,7 @@ export default function Dashboard() {
                       <div style={{ fontSize: 18, marginBottom: 5 }}>{ic}</div>
                       <div
                         style={{
-                          fontFamily: 'var(--fd)',
+                          fontFamily: "'Montserrat', sans-serif",
                           fontSize: 20,
                           fontWeight: 700,
                           color: 'var(--ink)',

@@ -155,6 +155,8 @@ export default function Education() {
     return matchCat && matchSearch;
   });
 
+  const fontStyle = { fontFamily: "'Montserrat', sans-serif" };
+
   if (article)
     return (
       <Layout title="Edukasi Finansial" subtitle={article.cat}>
@@ -190,15 +192,16 @@ export default function Education() {
                       color: article.tc,
                       marginBottom: 8,
                       display: 'inline-block',
+                      ...fontStyle,
                     }}
                   >
                     {article.cat}
                   </span>
                   <h1
                     style={{
-                      fontFamily: 'var(--fd)',
-                      fontSize: 22,
-                      fontWeight: 600,
+                      ...fontStyle,
+                      fontSize: 20,
+                      fontWeight: 700,
                       color: 'var(--ink)',
                       lineHeight: 1.3,
                       marginBottom: 6,
@@ -207,7 +210,13 @@ export default function Education() {
                   >
                     {article.title}
                   </h1>
-                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: 'var(--muted)',
+                      ...fontStyle,
+                    }}
+                  >
                     ⏱ {article.mins} menit baca
                   </span>
                 </div>
@@ -217,6 +226,7 @@ export default function Education() {
                   <p
                     key={i}
                     style={{
+                      ...fontStyle,
                       fontSize: 14,
                       color: 'var(--ink-2)',
                       lineHeight: 1.8,
@@ -237,6 +247,7 @@ export default function Education() {
                 >
                   <div
                     style={{
+                      ...fontStyle,
                       fontWeight: 700,
                       fontSize: 13,
                       color: 'var(--ink)',
@@ -255,6 +266,7 @@ export default function Education() {
                         fontSize: 13,
                         color: 'var(--ink-2)',
                         lineHeight: 1.55,
+                        ...fontStyle,
                       }}
                     >
                       <div
@@ -286,6 +298,7 @@ export default function Education() {
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <div
                       style={{
+                        ...fontStyle,
                         fontWeight: 700,
                         fontSize: 14,
                         color: '#fff',
@@ -296,6 +309,7 @@ export default function Education() {
                     </div>
                     <p
                       style={{
+                        ...fontStyle,
                         fontSize: 12,
                         color: 'rgba(255,255,255,.6)',
                         lineHeight: 1.5,
@@ -310,6 +324,7 @@ export default function Education() {
                       background: '#fff',
                       color: 'var(--ink)',
                       flexShrink: 0,
+                      ...fontStyle,
                     }}
                     onClick={() => navigate('/consultation')}
                   >
@@ -368,6 +383,7 @@ export default function Education() {
                     <div>
                       <div
                         style={{
+                          ...fontStyle,
                           fontSize: 12,
                           fontWeight: 600,
                           color: 'var(--ink)',
@@ -377,7 +393,13 @@ export default function Education() {
                       >
                         {a.title}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+                      <div
+                        style={{
+                          ...fontStyle,
+                          fontSize: 11,
+                          color: 'var(--muted)',
+                        }}
+                      >
                         {a.cat} · {a.mins} menit
                       </div>
                     </div>
@@ -395,9 +417,9 @@ export default function Education() {
                 <div style={{ fontSize: 32, marginBottom: 10 }}>🎯</div>
                 <div
                   style={{
-                    fontFamily: 'var(--fd)',
+                    ...fontStyle,
                     fontSize: 16,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     color: '#fff',
                     marginBottom: 7,
                   }}
@@ -406,6 +428,7 @@ export default function Education() {
                 </div>
                 <p
                   style={{
+                    ...fontStyle,
                     fontSize: 12,
                     color: 'rgba(255,255,255,.55)',
                     marginBottom: 14,
@@ -417,7 +440,11 @@ export default function Education() {
                 </p>
                 <button
                   className="btn btn-full"
-                  style={{ background: '#fff', color: 'var(--ink)' }}
+                  style={{
+                    background: '#fff',
+                    color: 'var(--ink)',
+                    ...fontStyle,
+                  }}
                   onClick={() => navigate('/financial-health')}
                 >
                   Mulai Health Check
@@ -475,13 +502,13 @@ export default function Education() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
+              ...fontStyle,
               width: '100%',
               padding: '9px 13px 9px 36px',
               border: '1.5px solid var(--border)',
               borderRadius: 9,
               fontSize: 13,
               outline: 'none',
-              fontFamily: 'var(--fb)',
               color: 'var(--ink)',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'var(--green-3)')}
@@ -489,7 +516,12 @@ export default function Education() {
           />
         </div>
         <span
-          style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}
+          style={{
+            ...fontStyle,
+            fontSize: 12,
+            color: 'var(--muted)',
+            whiteSpace: 'nowrap',
+          }}
         >
           {filtered.length} artikel
         </span>
@@ -503,6 +535,7 @@ export default function Education() {
             key={c}
             onClick={() => setCat(c)}
             style={{
+              ...fontStyle,
               padding: '6px 14px',
               borderRadius: 20,
               border: '1.5px solid',
@@ -512,7 +545,6 @@ export default function Education() {
               fontSize: 12,
               fontWeight: 600,
               cursor: 'pointer',
-              fontFamily: 'var(--fb)',
               transition: 'all .15s',
               whiteSpace: 'nowrap',
             }}
@@ -565,7 +597,11 @@ export default function Education() {
                 <span style={{ fontSize: 34 }}>{a.icon}</span>
                 <span
                   className="badge"
-                  style={{ background: 'rgba(255,255,255,.75)', color: a.tc }}
+                  style={{
+                    background: 'rgba(255,255,255,.75)',
+                    color: a.tc,
+                    ...fontStyle,
+                  }}
                 >
                   {a.cat}
                 </span>
@@ -573,9 +609,9 @@ export default function Education() {
               <div style={{ padding: '16px 18px' }}>
                 <h3
                   style={{
-                    fontFamily: 'var(--fd)',
-                    fontSize: 15,
-                    fontWeight: 600,
+                    ...fontStyle,
+                    fontSize: 14,
+                    fontWeight: 700,
                     color: 'var(--ink)',
                     marginBottom: 7,
                     lineHeight: 1.35,
@@ -586,6 +622,7 @@ export default function Education() {
                 </h3>
                 <p
                   style={{
+                    ...fontStyle,
                     fontSize: 12,
                     color: 'var(--ink-3)',
                     lineHeight: 1.6,
@@ -603,11 +640,18 @@ export default function Education() {
                     borderTop: '1px solid var(--border)',
                   }}
                 >
-                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                  <span
+                    style={{
+                      ...fontStyle,
+                      fontSize: 11,
+                      color: 'var(--muted)',
+                    }}
+                  >
                     ⏱ {a.mins} menit baca
                   </span>
                   <span
                     style={{
+                      ...fontStyle,
                       fontSize: 12,
                       fontWeight: 700,
                       color: 'var(--ink-2)',

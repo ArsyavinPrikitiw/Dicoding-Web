@@ -183,7 +183,7 @@ export default function Profile() {
             </div>
             <div
               style={{
-                fontFamily: 'var(--fd)',
+                fontFamily: "'Montserrat', sans-serif",
                 fontSize: 17,
                 fontWeight: 600,
                 color: '#fff',
@@ -246,7 +246,7 @@ export default function Profile() {
               <div style={{ fontSize: 22, marginBottom: 7 }}>{ic}</div>
               <div
                 style={{
-                  fontFamily: 'var(--fd)',
+                  fontFamily: "'Montserrat', sans-serif",
                   fontSize: 18,
                   fontWeight: 700,
                   color: 'var(--ink)',
@@ -441,7 +441,7 @@ export default function Profile() {
                     </span>
                     <span
                       style={{
-                        fontFamily: 'var(--fd)',
+                        fontFamily: "'Montserrat', sans-serif",
                         fontSize: 26,
                         fontWeight: 700,
                         color: 'var(--ink)',
@@ -727,7 +727,7 @@ export default function Profile() {
                           <td>
                             <span
                               style={{
-                                fontFamily: 'var(--fd)',
+                                fontFamily: "'Montserrat', sans-serif",
                                 fontSize: 15,
                                 fontWeight: 700,
                               }}
