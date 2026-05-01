@@ -38,7 +38,8 @@ export function AppProvider({ children }) {
         headers: hdr(),
       });
       const d = await r.json();
-      if (d.status === 'success') setHealthHistory(d.data.history || []);
+      if (d.status === 'success')
+        setHealthHistory(d.data?.history || d.history || []);
     } catch {}
   }, []);
 
@@ -47,7 +48,8 @@ export function AppProvider({ children }) {
     try {
       const r = await fetch(`${API}/bookings`, { headers: hdr() });
       const d = await r.json();
-      if (d.status === 'success') setBookings(d.data.bookings || []);
+      if (d.status === 'success')
+        setBookings(d.data?.bookings || d.bookings || []);
     } catch {}
   }, []);
 
@@ -55,7 +57,8 @@ export function AppProvider({ children }) {
     try {
       const r = await fetch(`${API}/consultants`);
       const d = await r.json();
-      if (d.status === 'success') setConsultants(d.data.consultants || []);
+      if (d.status === 'success')
+        setConsultants(d.data?.consultants || d.consultants || []);
     } catch {}
   }, []);
 
@@ -71,11 +74,12 @@ export function AppProvider({ children }) {
   const loadMe = useCallback(async () => {
     if (!tok()) return;
     try {
-      const r = await fetch(`${API}/auth/me`, { headers: hdr() });
+      const r = await fetch(`${API}/auth/profile`, { headers: hdr() });
       const d = await r.json();
       if (d.status === 'success') {
-        setUser(d.data.user);
-        localStorage.setItem('user', JSON.stringify(d.data.user));
+        const usr = d.data?.user || d.user;
+        setUser(usr);
+        localStorage.setItem('user', JSON.stringify(usr));
       }
     } catch {}
   }, []);
@@ -97,7 +101,7 @@ export function AppProvider({ children }) {
       refreshAll().finally(() => setBusy((p) => ({ ...p, init: false })));
     }
     loadConsultants();
-  }, []);
+  }, [loadConsultants, refreshAll]);
 
   const login = useCallback(
     async (email, password) => {
@@ -204,8 +208,9 @@ export function AppProvider({ children }) {
     });
     const d = await r.json();
     if (d.status === 'success') {
-      setUser(d.data.user);
-      localStorage.setItem('user', JSON.stringify(d.data.user));
+      const usr = d.data?.user || d.user;
+      setUser(usr);
+      localStorage.setItem('user', JSON.stringify(usr));
     }
     return d;
   }, []);

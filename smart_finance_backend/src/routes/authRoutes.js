@@ -50,7 +50,7 @@ router.post(
   login,
 );
 
-router.get('/me', authenticate, getMe);
+router.get('/profile', authenticate, getMe);
 
 router.patch(
   '/profile',

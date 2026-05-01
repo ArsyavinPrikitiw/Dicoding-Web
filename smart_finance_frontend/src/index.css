@@ -1085,14 +1085,44 @@ tbody td {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
+  .tabs {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    gap: 12px !important;
+    padding: 8px 4px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tab {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    padding: 8px 16px !important;
+    display: inline-block !important;
+    font-size: 13px;
+  }
   .sc {
     padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sc-lbl {
+    font-size: 10px;
+    display: block;
+    line-height: 1.2;
+    white-space: normal !important;
+    word-break: normal !important;
+    hyphens: manual !important;
+    max-width: 100%;
+    text-transform: uppercase;
   }
   .sc-val {
     font-size: 18px;
-  }
-  .sc-lbl {
-    font-size: 9px;
   }
   .sc-icon {
     width: 28px;
@@ -1139,11 +1169,15 @@ tbody td {
     gap: 8px;
   }
   .tabs {
-    gap: 2px;
+    gap: 8px !important;
+    padding: 4px !important;
   }
   .tab {
-    font-size: 11px;
-    padding: 7px 6px;
+    font-size: 12px !important;
+    padding: 10px 14px !important;
+  }
+  .sc-lbl {
+    font-size: 9px;
   }
   .btn {
     font-size: 12px;
@@ -1174,9 +1208,6 @@ tbody td {
   .stat-3 {
     grid-template-columns: repeat(3, 1fr) !important;
   }
-  .prof-stats {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
 }
 
 @media (max-width: 380px) {
@@ -1185,5 +1216,8 @@ tbody td {
   }
   .sc-val {
     font-size: 16px;
+  }
+  .sc-lbl {
+    font-size: 8px;
   }
 }

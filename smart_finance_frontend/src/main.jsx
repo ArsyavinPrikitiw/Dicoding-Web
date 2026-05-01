@@ -11,8 +11,10 @@ import Education from './education/educationPage.jsx';
 import Profile from './profile/userProfile.jsx';
 import './index.css';
 
-const G = ({ children }) =>
-  localStorage.getItem('token') ? children : <Navigate to="/" replace />;
+const Guard = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/" replace />;
+};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -23,49 +25,49 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route
             path="/dashboard"
             element={
-              <G>
+              <Guard>
                 <Dashboard />
-              </G>
+              </Guard>
             }
           />
           <Route
             path="/financial-health"
             element={
-              <G>
+              <Guard>
                 <FinancialHealth />
-              </G>
+              </Guard>
             }
           />
           <Route
             path="/consultation"
             element={
-              <G>
+              <Guard>
                 <ConsultationList />
-              </G>
+              </Guard>
             }
           />
           <Route
             path="/consultation/booking/:id"
             element={
-              <G>
+              <Guard>
                 <BookingConsultation />
-              </G>
+              </Guard>
             }
           />
           <Route
             path="/education"
             element={
-              <G>
+              <Guard>
                 <Education />
-              </G>
+              </Guard>
             }
           />
           <Route
             path="/profile"
             element={
-              <G>
+              <Guard>
                 <Profile />
-              </G>
+              </Guard>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

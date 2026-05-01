@@ -30,7 +30,7 @@ const register = async (req, res) => {
     return res.status(201).json({
       status: 'success',
       message: 'Registrasi berhasil.',
-      user: { id: result.insertId, name, email },
+      user: { id: result.insertId, name, email, phone: phone || null },
       token,
     });
   } catch (error) {
@@ -94,6 +94,13 @@ const getMe = async (req, res) => {
       'SELECT id, name, email, phone, photo_url, created_at FROM users WHERE id = ?',
       [req.user.id],
     );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Pengguna tidak ditemukan.' });
+    }
+
     return res.status(200).json({ status: 'success', user: rows[0] });
   } catch (error) {
     console.error('GetMe error:', error);
@@ -162,6 +169,12 @@ const changePassword = async (req, res) => {
     const [rows] = await pool.query('SELECT password FROM users WHERE id = ?', [
       userId,
     ]);
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Pengguna tidak ditemukan.' });
+    }
 
     const isValid = await bcrypt.compare(old_password, rows[0].password);
     if (!isValid) {
