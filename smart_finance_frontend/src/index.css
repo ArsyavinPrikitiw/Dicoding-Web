@@ -1116,10 +1116,11 @@ tbody td {
     display: block;
     line-height: 1.2;
     white-space: normal !important;
-    word-break: normal !important;
-    hyphens: manual !important;
+    word-break: break-all !important;
     max-width: 100%;
     text-transform: uppercase;
+    padding-right: 32px !important;
+    box-sizing: border-box !important;
   }
   .sc-val {
     font-size: 18px;
@@ -1178,6 +1179,7 @@ tbody td {
   }
   .sc-lbl {
     font-size: 9px;
+    padding-right: 32px !important;
   }
   .btn {
     font-size: 12px;
@@ -1219,5 +1221,6 @@ tbody td {
   }
   .sc-lbl {
     font-size: 8px;
+    padding-right: 32px !important;
   }
 }
