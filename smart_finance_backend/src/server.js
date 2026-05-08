@@ -61,14 +61,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-const startServer = async () => {
-  await testConnection();
-  app.listen(PORT, () => {
-    console.log(`Smart Finance API running on http://localhost:${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  });
-};
-
-startServer();
+if (process.env.NODE_ENV !== 'production') {
+  const startServer = async () => {
+    await testConnection();
+    app.listen(PORT, () => {
+      console.log(`Smart Finance API running on http://localhost:${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  };
+  startServer();
+} else {
+  testConnection();
+}
 
 export default app;
